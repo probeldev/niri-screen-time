@@ -1,0 +1,4 @@
+github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
+github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/probeldev/niri-float-sticky v0.0.2 h1:7Isv9vOMILM4Wvu8+WhbMuzZzABrMPL93LVZpdVk5OY=
+github.com/probeldev/niri-float-sticky v0.0.2/go.mod h1:NPbB6c7VXX3q7SFtcpCE9DwNXdqoou7vHBOa6ztR4bg=
