@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
+	"github.com/probeldev/niri-screen-time/daemon"
 	"github.com/probeldev/niri-screen-time/db"
-	"github.com/probeldev/niri-screen-time/demon"
 )
 
 func main() {
@@ -14,5 +14,5 @@ func main() {
 	}
 	defer db.Close()
 
-	demon.Run(db)
+	daemon.Run(db)
 }

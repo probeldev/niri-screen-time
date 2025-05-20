@@ -1,4 +1,4 @@
-package demon
+package daemon
 
 import (
 	"log"
@@ -16,7 +16,7 @@ const (
 
 func Run(db *db.ScreenTimeDB) {
 
-	fn := "demon:Run"
+	fn := "daemon:Run"
 
 	for {
 		windows, err := niriwindows.GetWindowsList()
