@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/probeldev/niri-screen-time/cache"
@@ -12,80 +13,100 @@ import (
 	"github.com/probeldev/niri-screen-time/report"
 )
 
+type Config struct {
+	IsDaemon bool
+	From     string
+	To       string
+}
+
 func main() {
-
-	fn := "main"
-
-	isDaemon := flag.Bool("daemon", false, "Run daemon")
-	fromStr := flag.String("from", "", "Начальная дата (формат: 2006-01-02), по умолчанию — начало сегодняшнего дня")
-	toStr := flag.String("to", "", "Конечная дата (формат: 2006-01-02), по умолчанию — конец сегодняшнего дня")
-
-	flag.Parse()
-
-	if *isDaemon {
-
-		db, err := db.NewScreenTimeDB()
-		if err != nil {
-			log.Panic(fn, err)
-		}
-		defer db.Close()
-
-		cache := cache.NewScreenTimeCache(db, 5*time.Second, 100) // Сброс каждые 5 сек или 100 записей
-		cache.Start()
-		defer cache.Stop()
-
-		log.Println("Run daemon")
-		daemon.Run(cache)
-	}
-
-	db, err := db.NewScreenTimeDB()
-	if err != nil {
-		log.Panic(fn, err)
-	}
-	defer db.Close()
-
-	flag.Parse()
-
-	// Парсим даты (если не указаны — берём сегодняшний день)
-	from, to := parseDates(*fromStr, *toStr)
-
-	fmt.Println("")
-	fmt.Printf("From %s to %s\n", from.Format("2006-01-02 15:04:05"), to.Format("2006-01-02 15:04:05"))
-
-	err = report.GetReport(db, from, to)
-
-	if err != nil {
-		log.Panic(err)
+	if err := run(); err != nil {
+		log.Printf("Error: %v", err)
+		os.Exit(1)
 	}
 }
 
-func parseDates(fromStr, toStr string) (from, to time.Time) {
-	now := time.Now()
+func run() error {
+	cfg, err := parseFlags()
+	if err != nil {
+		return fmt.Errorf("failed to parse flags: %w", err)
+	}
 
+	if cfg.IsDaemon {
+		return runDaemonMode()
+	}
+	return runReportMode(cfg.From, cfg.To)
+}
+
+func parseFlags() (*Config, error) {
+	cfg := &Config{}
+
+	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
+	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
+	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
+	flag.Parse()
+
+	return cfg, nil
+}
+
+func runDaemonMode() error {
+	db, err := db.NewScreenTimeDB()
+	if err != nil {
+		return fmt.Errorf("failed to init DB: %w", err)
+	}
+	defer db.Close()
+
+	cache := cache.NewScreenTimeCache(db, 5*time.Second, 100)
+	cache.Start()
+	defer cache.Stop()
+
+	log.Println("Starting daemon...")
+
+	daemon.Run(cache)
+
+	return nil
+}
+
+func runReportMode(fromStr, toStr string) error {
+	db, err := db.NewScreenTimeDB()
+	if err != nil {
+		return fmt.Errorf("failed to init DB: %w", err)
+	}
+	defer db.Close()
+
+	from, to, err := parseDates(fromStr, toStr)
+	if err != nil {
+		return fmt.Errorf("failed to parse dates: %w", err)
+	}
+
+	fmt.Printf("\nReport period: %s to %s\n",
+		from.Format("2006-01-02 15:04:05"),
+		to.Format("2006-01-02 15:04:05"))
+
+	return report.GetReport(db, from, to)
+}
+
+func parseDates(fromStr, toStr string) (time.Time, time.Time, error) {
+	now := time.Now()
 	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	todayEnd := todayStart.Add(24*time.Hour - 1*time.Nanosecond)
 
-	if fromStr == "" {
-		from = todayStart
-	} else {
-		parsedFrom, err := time.Parse("2006-01-02", fromStr)
-		if err != nil {
-			log.Panic("Error parse date")
-		} else {
-			from = parsedFrom
+	parseDate := func(dateStr string, defaultDate time.Time) (time.Time, error) {
+		if dateStr == "" {
+			return defaultDate, nil
 		}
+		return time.Parse("2006-01-02", dateStr)
 	}
 
-	if toStr == "" {
-		to = todayEnd
-	} else {
-		parsedTo, err := time.Parse("2006-01-02", toStr)
-		if err != nil {
-			log.Panic("Error parse date")
-		} else {
-			to = parsedTo
-		}
+	from, err := parseDate(fromStr, todayStart)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid from date: %w", err)
 	}
 
-	return from, to
+	to, err := parseDate(toStr, todayEnd)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid to date: %w", err)
+	}
+
+	return from, to, nil
 }
