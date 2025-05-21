@@ -36,7 +36,6 @@ func main() {
 
 	fmt.Println("")
 	fmt.Printf("From %s to %s\n", from.Format("2006-01-02 15:04:05"), to.Format("2006-01-02 15:04:05"))
-	fmt.Println("")
 
 	err = report.GetReport(db, from, to)
 

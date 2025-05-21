@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/probeldev/niri-screen-time/alias"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
 	subprogram "github.com/probeldev/niri-screen-time/subProgram"
@@ -67,9 +68,13 @@ func write(report []model.Report) {
 	defer w.Flush()
 
 	summary := 0
+
+	alias := alias.NewAlias()
 	for _, r := range report {
 		summary += r.TimeMs
 		dur := formatDuration(r.TimeMs)
+
+		r := alias.ReplaceAppId2Alias(r)
 		fmt.Fprintf(w, "%s\t %s\n", r.Name, dur)
 	}
 
