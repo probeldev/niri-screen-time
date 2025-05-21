@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/probeldev/niri-screen-time/alias"
+	"github.com/probeldev/niri-screen-time/aliasmanager"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
 	subprogram "github.com/probeldev/niri-screen-time/subProgram"
@@ -71,7 +71,7 @@ func write(report []model.Report) {
 
 	summary := 0
 
-	alias, err := alias.NewAliasManager()
+	alias, err := aliasmanager.NewAliasManager()
 	if err != nil {
 		log.Panic(fn, err)
 	}
