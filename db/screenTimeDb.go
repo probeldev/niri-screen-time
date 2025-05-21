@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/probeldev/niri-screen-time/model"
@@ -14,19 +16,44 @@ type ScreenTimeDB struct {
 	db *sql.DB
 }
 
-// NewScreenTimeDB инициализирует подключение к БД и создает таблицу если нужно
-func NewScreenTimeDB(dbPath string) (*ScreenTimeDB, error) {
+func getDbPath() (string, error) {
+	// Раскрываем ~ в домашнюю директорию
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("failed to get home directory: %w", err)
+	}
+
+	// Формируем полный путь
+	dbDir := filepath.Join(homeDir, ".local", "share", "niri-screen-time")
+	dbPath := filepath.Join(dbDir, "db.db")
+
+	// Создаём директорию (если её нет)
+	if err := os.MkdirAll(dbDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create directory %s: %w", dbDir, err)
+	}
+
+	return dbPath, nil
+}
+
+// NewScreenTimeDB инициализирует подключение к БД и создаёт таблицы.
+func NewScreenTimeDB() (*ScreenTimeDB, error) {
+	// Получаем путь к БД
+	dbPath, err := getDbPath()
+	if err != nil {
+		return nil, err
+	}
+
+	// Открываем/создаём БД
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// Включаем WAL режим для лучшей производительности при конкурентном доступе
-	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
-		return nil, fmt.Errorf("failed to enable WAL mode: %w", err)
+	// Настройки SQLite
+	if _, err := db.Exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"); err != nil {
+		return nil, fmt.Errorf("failed to set pragmas: %w", err)
 	}
 
-	// Создаем таблицу с оптимальными индексами
 	createTableSQL := `
 	CREATE TABLE IF NOT EXISTS screen_time (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,11 +63,7 @@ func NewScreenTimeDB(dbPath string) (*ScreenTimeDB, error) {
 		sleep INTEGER NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
-	
-	CREATE INDEX IF NOT EXISTS idx_date ON screen_time(date);
-	CREATE INDEX IF NOT EXISTS idx_app_id ON screen_time(app_id);
 	`
-
 	if _, err := db.Exec(createTableSQL); err != nil {
 		return nil, fmt.Errorf("failed to create table: %w", err)
 	}

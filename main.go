@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	db, err := db.NewScreenTimeDB("screen_time.db")
+	db, err := db.NewScreenTimeDB()
 	if err != nil {
 		log.Fatal(err)
 	}
