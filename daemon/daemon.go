@@ -19,28 +19,31 @@ func Run(db *db.ScreenTimeDB) {
 	fn := "daemon:Run"
 
 	for {
-		windows, err := niriwindows.GetWindowsList()
 
-		if err != nil {
-			log.Panic(fn, err)
-		}
+		go func() {
+			windows, err := niriwindows.GetWindowsList()
 
-		for _, w := range windows {
-			if w.IsFocused {
-
-				sc := model.ScreenTime{
-					Date:  time.Now(),
-					AppID: w.AppID,
-					Title: w.Title,
-					Sleep: sleepMs,
-				}
-
-				if err := db.Insert(sc); err != nil {
-					log.Fatal(err)
-				}
-
+			if err != nil {
+				log.Panic(fn, err)
 			}
-		}
+
+			for _, w := range windows {
+				if w.IsFocused {
+
+					sc := model.ScreenTime{
+						Date:  time.Now(),
+						AppID: w.AppID,
+						Title: w.Title,
+						Sleep: sleepMs,
+					}
+
+					if err := db.Insert(sc); err != nil {
+						log.Fatal(err)
+					}
+
+				}
+			}
+		}()
 
 		time.Sleep(sleepMs * time.Millisecond)
 	}
