@@ -2,7 +2,7 @@
 
 Утилита, которая собирает сколько времени проводишь в каждом из приложений.
 
-![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/sceenshots/report.png?raw=true)
+![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/screenshots/report.png?raw=true)
 
 ## Использование 
 
