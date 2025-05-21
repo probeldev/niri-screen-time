@@ -1,7 +1,7 @@
 package model
 
 type SubProgram struct {
-	AppID string
-	Title string
-	Alias string
+	AppID string `json:"app_id"`
+	Title string `json:"title"`
+	Alias string `json:"alias"`
 }

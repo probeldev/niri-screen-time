@@ -12,7 +12,7 @@ import (
 	"github.com/probeldev/niri-screen-time/aliasmanager"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
-	subprogram "github.com/probeldev/niri-screen-time/subProgram"
+	"github.com/probeldev/niri-screen-time/subprogrammanager"
 )
 
 func GetReport(
@@ -33,7 +33,12 @@ func GetReport(
 	}
 
 	summary := 0
-	subProgram := subprogram.NewSubProgram()
+	subProgram, err := subprogrammanager.NewSubProgramManager()
+
+	if err != nil {
+		return err
+	}
+
 	for _, st := range screenTimeList {
 		summary += st.Sleep
 		st = subProgram.GetSubProgram(st)
