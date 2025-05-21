@@ -2,6 +2,7 @@ package report
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -59,6 +60,7 @@ func GetReport(
 }
 
 func write(report []model.Report) {
+	fn := "report:write"
 
 	sort.Slice(report, func(i, j int) bool {
 		return report[i].TimeMs > report[j].TimeMs
@@ -69,7 +71,11 @@ func write(report []model.Report) {
 
 	summary := 0
 
-	alias := alias.NewAlias()
+	alias, err := alias.NewAliasManager()
+	if err != nil {
+		log.Panic(fn, err)
+	}
+
 	for _, r := range report {
 		summary += r.TimeMs
 		dur := formatDuration(r.TimeMs)
