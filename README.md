@@ -52,21 +52,21 @@ TODO
 Для терминальных команд:
 
 ```json
-    {
-      "app_id": "com.mitchellh.ghostty",
-      "title": "nvim",
-      "alias": "NeoVim Editor"
-    }
+{
+  "app_id": "com.mitchellh.ghostty",
+  "title": "nvim",
+  "alias": "NeoVim Editor"
+}
 ```
 
 Для веб-сайтов в браузере:
 
 ```json
-    {
-      "app_id": "org.mozilla.firefox",
-      "title": "GitHub",
-      "alias": "GitHub"
-    }
+{
+  "app_id": "org.mozilla.firefox",
+  "title": "GitHub",
+  "alias": "GitHub"
+}
 ```
 
 ### Правила работы:
@@ -95,16 +95,16 @@ TODO
 ### Формат файла
 
 ```json
-    [
-      {
-        "name": "оригинальное_название_приложения",
-        "alias": "желаемое_название"
-      },
-      {
-        "name": "org.telegram.desktop",
-        "alias": "Telegram"
-      }
-    ]
+[
+  {
+    "name": "оригинальное_название_приложения",
+    "alias": "желаемое_название"
+  },
+  {
+    "name": "org.telegram.desktop",
+    "alias": "Telegram"
+  }
+]
 ```
 
 
