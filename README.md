@@ -2,6 +2,7 @@
 
 Утилита, которая собирает сколько времени проводишь в каждом из приложений.
 
+![Report Example](https://github.com/probeldev/fastlauncher/blob/main/sceenshots/report.png?raw=true)
 
 ## Использование 
 
