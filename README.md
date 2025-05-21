@@ -7,6 +7,11 @@
 
 ## Установка
 
+### go 
+
+    go install github.com/probeldev/niri-screen-time@latest     
+
+
 ### nix 
     
     nix profile install github:probeldev/niri-screen-time
