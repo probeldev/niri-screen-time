@@ -1,6 +1,6 @@
 package model
 
 type Alias struct {
-	Name  string
-	Alias string
+	Name  string `json:"name"`
+	Alias string `json:"alias"`
 }
