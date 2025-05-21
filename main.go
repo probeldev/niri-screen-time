@@ -6,17 +6,15 @@ import (
 	"log"
 	"time"
 
+	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/daemon"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/report"
 )
 
 func main() {
-	db, err := db.NewScreenTimeDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+
+	fn := "main"
 
 	isDaemon := flag.Bool("daemon", false, "Run daemon")
 	fromStr := flag.String("from", "", "Начальная дата (формат: 2006-01-02), по умолчанию — начало сегодняшнего дня")
@@ -25,9 +23,26 @@ func main() {
 	flag.Parse()
 
 	if *isDaemon {
+
+		db, err := db.NewScreenTimeDB()
+		if err != nil {
+			log.Panic(fn, err)
+		}
+		defer db.Close()
+
+		cache := cache.NewScreenTimeCache(db, 5*time.Second, 100) // Сброс каждые 5 сек или 100 записей
+		cache.Start()
+		defer cache.Stop()
+
 		log.Println("Run daemon")
-		daemon.Run(db)
+		daemon.Run(cache)
 	}
+
+	db, err := db.NewScreenTimeDB()
+	if err != nil {
+		log.Panic(fn, err)
+	}
+	defer db.Close()
 
 	flag.Parse()
 

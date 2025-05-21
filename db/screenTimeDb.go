@@ -17,17 +17,14 @@ type ScreenTimeDB struct {
 }
 
 func getDbPath() (string, error) {
-	// Раскрываем ~ в домашнюю директорию
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)
 	}
 
-	// Формируем полный путь
 	dbDir := filepath.Join(homeDir, ".local", "share", "niri-screen-time")
 	dbPath := filepath.Join(dbDir, "db.db")
 
-	// Создаём директорию (если её нет)
 	if err := os.MkdirAll(dbDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create directory %s: %w", dbDir, err)
 	}
@@ -71,12 +68,10 @@ func NewScreenTimeDB() (*ScreenTimeDB, error) {
 	return &ScreenTimeDB{db: db}, nil
 }
 
-// Close закрывает соединение с БД
 func (stdb *ScreenTimeDB) Close() error {
 	return stdb.db.Close()
 }
 
-// Insert добавляет новую запись
 func (stdb *ScreenTimeDB) Insert(st model.ScreenTime) error {
 	_, err := stdb.db.Exec(
 		"INSERT INTO screen_time(date, app_id, title, sleep) VALUES(?, ?, ?, ?)",

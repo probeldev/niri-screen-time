@@ -5,7 +5,7 @@ import (
 	"time"
 
 	niriwindows "github.com/probeldev/niri-float-sticky/niri-windows"
-	"github.com/probeldev/niri-screen-time/db"
+	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/model"
 )
 
@@ -14,7 +14,7 @@ const (
 	filename = "/home/sergey/screen-time.txt"
 )
 
-func Run(db *db.ScreenTimeDB) {
+func Run(cache *cache.ScreenTimeCache) {
 
 	fn := "daemon:Run"
 
@@ -37,10 +37,7 @@ func Run(db *db.ScreenTimeDB) {
 						Sleep: sleepMs,
 					}
 
-					if err := db.Insert(sc); err != nil {
-						log.Fatal(err)
-					}
-
+					cache.Add(sc)
 				}
 			}
 		}()
