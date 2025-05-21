@@ -1,6 +1,6 @@
 # Niri Screen Time
 
-Утилита, которая собирает сколько времени проводишь в каждом из приложений, для Wayland композитора Niri.
+Утилита, которая собирает информацию о том, сколько времени проводишь в каждом из приложений, для Wayland композитора Niri.
 
 ![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/screenshots/report.png?raw=true)
 
