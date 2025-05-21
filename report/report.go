@@ -30,9 +30,10 @@ func GetReport(
 		return err
 	}
 
+	summary := 0
 	subProgram := subprogram.NewSubProgram()
 	for _, st := range screenTimeList {
-
+		summary += st.Sleep
 		st = subProgram.GetSubProgram(st)
 
 		if report, ok := response[st.AppID]; ok {
@@ -65,11 +66,17 @@ func write(report []model.Report) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	defer w.Flush()
 
+	summary := 0
 	for _, r := range report {
-
+		summary += r.TimeMs
 		dur := formatDuration(r.TimeMs)
 		fmt.Fprintf(w, "%s\t %s\n", r.Name, dur)
 	}
+
+	fmt.Fprintln(w, "\t\t")
+	dur := formatDuration(summary)
+	fmt.Fprintf(w, "%s\t %s\n", "Summary screen time:", dur)
+	fmt.Println("")
 }
 
 func formatDuration(ms int) string {
