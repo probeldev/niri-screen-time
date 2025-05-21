@@ -7,7 +7,9 @@
 
 ## Установка
 
-TODO
+### nix 
+    
+    nix profile install github:probeldev/niri-screen-time
 
 ## Использование 
 
