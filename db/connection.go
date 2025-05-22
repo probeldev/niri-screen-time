@@ -62,10 +62,10 @@ func (dbc *DBConnection) InitTables() error {
 	);
 
 	CREATE TABLE IF NOT EXISTS aggregated_screen_time (
-		date DATE NOT NULL,
+		date TIMESTAMP NOT NULL,
 		app_id TEXT NOT NULL,
 		title TEXT NOT NULL,
-		total_sleep INTEGER NOT NULL
+		sleep INTEGER NOT NULL
 	);
 	`)
 	return err
