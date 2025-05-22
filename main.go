@@ -50,11 +50,19 @@ func parseFlags() (*Config, error) {
 }
 
 func runDaemonMode() error {
-	db, err := db.NewScreenTimeDB()
+
+	// Создаем подключение к БД
+	conn, err := db.NewDBConnection()
 	if err != nil {
-		return fmt.Errorf("failed to init DB: %w", err)
+		log.Fatal(err)
 	}
-	defer db.Close()
+	defer conn.Close()
+
+	if err := conn.InitTables(); err != nil {
+		log.Fatal(err)
+	}
+
+	db := db.NewScreenTimeDB(conn)
 
 	cache := cache.NewScreenTimeCache(db, 5*time.Second, 100)
 	cache.Start()
@@ -68,11 +76,18 @@ func runDaemonMode() error {
 }
 
 func runReportMode(fromStr, toStr string) error {
-	db, err := db.NewScreenTimeDB()
+	// Создаем подключение к БД
+	conn, err := db.NewDBConnection()
 	if err != nil {
-		return fmt.Errorf("failed to init DB: %w", err)
+		log.Fatal(err)
 	}
-	defer db.Close()
+	defer conn.Close()
+
+	if err := conn.InitTables(); err != nil {
+		log.Fatal(err)
+	}
+
+	db := db.NewScreenTimeDB(conn)
 
 	from, to, err := parseDates(fromStr, toStr)
 	if err != nil {
