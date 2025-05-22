@@ -58,17 +58,14 @@ func (dbc *DBConnection) InitTables() error {
 		date TIMESTAMP NOT NULL,
 		app_id TEXT NOT NULL,
 		title TEXT NOT NULL,
-		sleep INTEGER NOT NULL,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		sleep INTEGER NOT NULL
 	);
 
 	CREATE TABLE IF NOT EXISTS aggregated_screen_time (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		date DATE NOT NULL,
 		app_id TEXT NOT NULL,
-		total_sleep INTEGER NOT NULL,
-		last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		UNIQUE(date, app_id)
+		title TEXT NOT NULL,
+		total_sleep INTEGER NOT NULL
 	);
 	`)
 	return err
