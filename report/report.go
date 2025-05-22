@@ -16,20 +16,30 @@ import (
 )
 
 func GetReport(
-	db *db.ScreenTimeDB,
+	dbScreenTime *db.ScreenTimeDB,
+	dbAggregate *db.AggregatedScreenTimeDB,
 	from time.Time,
 	to time.Time,
 ) error {
 
 	response := map[string]model.Report{}
 
-	screenTimeList, err := db.GetByDateRange(
+	screenTimeList, err := dbScreenTime.GetByDateRange(
 		from,
 		to,
 	)
 
 	if err != nil {
 		return err
+	}
+
+	aggregate, err := dbAggregate.GetByDateRange(
+		from,
+		to,
+	)
+
+	for _, a := range aggregate {
+		screenTimeList = append(screenTimeList, model.ScreenTime(a))
 	}
 
 	summary := 0

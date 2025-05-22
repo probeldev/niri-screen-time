@@ -14,15 +14,15 @@ func NewAggregatedScreenTimeDB(conn *DBConnection) *AggregatedScreenTimeDB {
 	return &AggregatedScreenTimeDB{conn: conn}
 }
 
-func (astdb *AggregatedScreenTimeDB) Insert(st model.ScreenTime) error {
+func (astdb *AggregatedScreenTimeDB) Insert(ast model.AggregatedScreenTime) error {
 	_, err := astdb.conn.db.Exec(
 		"INSERT INTO aggregated_screen_time(date, app_id, title, sleep) VALUES(?, ?, ?, ?)",
-		st.Date, st.AppID, st.Title, st.Sleep,
+		ast.Date, ast.AppID, ast.Title, ast.Sleep,
 	)
 	return err
 }
 
-func (astdb *AggregatedScreenTimeDB) BulkInsert(records []model.ScreenTime) error {
+func (astdb *AggregatedScreenTimeDB) BulkInsert(records []model.AggregatedScreenTime) error {
 	tx, err := astdb.conn.db.Begin()
 	if err != nil {
 		return err
@@ -45,7 +45,13 @@ func (astdb *AggregatedScreenTimeDB) BulkInsert(records []model.ScreenTime) erro
 	return tx.Commit()
 }
 
-func (astdb *AggregatedScreenTimeDB) GetByDateRange(from, to time.Time) ([]model.ScreenTime, error) {
+func (astdb *AggregatedScreenTimeDB) GetByDateRange(
+	from,
+	to time.Time,
+) (
+	[]model.AggregatedScreenTime,
+	error,
+) {
 	rows, err := astdb.conn.db.Query(
 		"SELECT date, app_id, title, sleep FROM aggregated_screen_time WHERE date BETWEEN ? AND ? ORDER BY date",
 		from, to,
@@ -55,9 +61,9 @@ func (astdb *AggregatedScreenTimeDB) GetByDateRange(from, to time.Time) ([]model
 	}
 	defer rows.Close()
 
-	var results []model.ScreenTime
+	var results []model.AggregatedScreenTime
 	for rows.Next() {
-		var st model.ScreenTime
+		var st model.AggregatedScreenTime
 		if err := rows.Scan(&st.Date, &st.AppID, &st.Title, &st.Sleep); err != nil {
 			return nil, err
 		}

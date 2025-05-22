@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/probeldev/niri-screen-time/aggregatemanager"
 	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/daemon"
 	"github.com/probeldev/niri-screen-time/db"
@@ -58,13 +59,28 @@ func runDaemonMode() error {
 	}
 	defer conn.Close()
 
+	go func() {
+		conn.Vacuum()
+		time.Sleep(1 * time.Hour)
+	}()
+
 	if err := conn.InitTables(); err != nil {
 		log.Fatal(err)
 	}
 
-	db := db.NewScreenTimeDB(conn)
+	screenDB := db.NewScreenTimeDB(conn)
+	aggregateDb := db.NewAggregatedScreenTimeDB(conn)
 
-	cache := cache.NewScreenTimeCache(db, 5*time.Second, 100)
+	go func() {
+		am := aggregatemanager.NewAggragetManager(
+			*screenDB,
+			*aggregateDb,
+		)
+
+		am.Aggregate()
+	}()
+
+	cache := cache.NewScreenTimeCache(screenDB, 5*time.Second, 100)
 	cache.Start()
 	defer cache.Stop()
 
@@ -87,7 +103,7 @@ func runReportMode(fromStr, toStr string) error {
 		log.Fatal(err)
 	}
 
-	db := db.NewScreenTimeDB(conn)
+	screenTimeDb := db.NewScreenTimeDB(conn)
 
 	from, to, err := parseDates(fromStr, toStr)
 	if err != nil {
@@ -98,7 +114,9 @@ func runReportMode(fromStr, toStr string) error {
 		from.Format("2006-01-02 15:04:05"),
 		to.Format("2006-01-02 15:04:05"))
 
-	return report.GetReport(db, from, to)
+	aggregateDb := db.NewAggregatedScreenTimeDB(conn)
+
+	return report.GetReport(screenTimeDb, aggregateDb, from, to)
 }
 
 func parseDates(fromStr, toStr string) (time.Time, time.Time, error) {

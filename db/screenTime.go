@@ -67,6 +67,27 @@ func (stdb *ScreenTimeDB) GetByDateRange(from, to time.Time) ([]model.ScreenTime
 	return results, nil
 }
 
+func (stdb *ScreenTimeDB) GetAll() ([]model.ScreenTime, error) {
+	rows, err := stdb.conn.db.Query(
+		"SELECT id, date, app_id, title, sleep FROM screen_time ORDER BY date",
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []model.ScreenTime
+	for rows.Next() {
+		var st model.ScreenTime
+		if err := rows.Scan(&st.ID, &st.Date, &st.AppID, &st.Title, &st.Sleep); err != nil {
+			return nil, err
+		}
+		results = append(results, st)
+	}
+
+	return results, nil
+}
+
 func (stdb *ScreenTimeDB) GetAppUsage(from, to time.Time) (map[string]int, error) {
 	rows, err := stdb.conn.db.Query(
 		"SELECT app_id, SUM(sleep) FROM screen_time WHERE date BETWEEN ? AND ? GROUP BY app_id",
@@ -88,6 +109,11 @@ func (stdb *ScreenTimeDB) GetAppUsage(from, to time.Time) (map[string]int, error
 	}
 
 	return result, nil
+}
+
+func (stdb *ScreenTimeDB) DeleteById(screenTime model.ScreenTime) error {
+	_, err := stdb.conn.db.Exec("DELETE FROM screen_time WHERE id = ?", screenTime.ID)
+	return err
 }
 
 func (stdb *ScreenTimeDB) DeleteOldRecords(before time.Time) error {
