@@ -95,7 +95,7 @@ func (am *aggregateManager) needAggregate(
 		return false
 	}
 
-	if aggregate.Date.Format("2006-01-02") == screenTime.Date.Format("2006-01-02") {
+	if aggregate.Date.Format("2006-01-02") != screenTime.Date.Format("2006-01-02") {
 		return false
 	}
 
