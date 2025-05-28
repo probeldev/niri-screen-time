@@ -51,23 +51,29 @@ func parseFlags() (*Config, error) {
 }
 
 func runDaemonMode() error {
+	fn := "runDaemonMode"
 	// Создаем подключение к БД
 	conn, err := db.NewDBConnection()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(fn, err)
 	}
-	defer conn.Close()
+	defer func() {
+		err = conn.Close()
+		if err != nil {
+			log.Panic(fn, err)
+		}
+	}()
 
 	go func() {
 		err := conn.Vacuum()
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(fn, err)
 		}
 		time.Sleep(1 * time.Hour)
 	}()
 
 	if err := conn.InitTables(); err != nil {
-		log.Fatal(err)
+		log.Panic(fn, err)
 	}
 
 	screenDB := db.NewScreenTimeDB(conn)
@@ -94,15 +100,21 @@ func runDaemonMode() error {
 }
 
 func runReportMode(fromStr, toStr string) error {
+	fn := "runReportMode"
 	// Создаем подключение к БД
 	conn, err := db.NewDBConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close()
+	defer func() {
+		err = conn.Close()
+		if err != nil {
+			log.Panic(fn, err)
+		}
+	}()
 
 	if err = conn.InitTables(); err != nil {
-		log.Fatal(err)
+		log.Panic(fn, err)
 	}
 
 	screenTimeDb := db.NewScreenTimeDB(conn)
