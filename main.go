@@ -51,7 +51,6 @@ func parseFlags() (*Config, error) {
 }
 
 func runDaemonMode() error {
-
 	// Создаем подключение к БД
 	conn, err := db.NewDBConnection()
 	if err != nil {
@@ -60,7 +59,10 @@ func runDaemonMode() error {
 	defer conn.Close()
 
 	go func() {
-		conn.Vacuum()
+		err := conn.Vacuum()
+		if err != nil {
+			log.Fatal(err)
+		}
 		time.Sleep(1 * time.Hour)
 	}()
 
@@ -99,7 +101,7 @@ func runReportMode(fromStr, toStr string) error {
 	}
 	defer conn.Close()
 
-	if err := conn.InitTables(); err != nil {
+	if err = conn.InitTables(); err != nil {
 		log.Fatal(err)
 	}
 
