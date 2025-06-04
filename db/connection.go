@@ -72,7 +72,7 @@ func (dbc *DBConnection) InitTables() error {
 }
 
 // Exec выполняет запрос с ограничением параллелизма
-func (dbc *DBConnection) Exec(query string, args ...interface{}) (sql.Result, error) {
+func (dbc *DBConnection) Exec(query string, args ...any) (sql.Result, error) {
 	dbc.sem <- struct{}{}        // Захватываем слот
 	defer func() { <-dbc.sem }() // Освобождаем
 
@@ -80,7 +80,7 @@ func (dbc *DBConnection) Exec(query string, args ...interface{}) (sql.Result, er
 }
 
 // Query выполняет запрос на чтение (без ограничений)
-func (dbc *DBConnection) Query(query string, args ...interface{}) (*sql.Rows, error) {
+func (dbc *DBConnection) Query(query string, args ...any) (*sql.Rows, error) {
 	return dbc.db.Query(query, args...)
 }
 

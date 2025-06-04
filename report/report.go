@@ -37,6 +37,9 @@ func GetReport(
 		from,
 		to,
 	)
+	if err != nil {
+		return err
+	}
 
 	for _, a := range aggregate {
 		screenTimeList = append(screenTimeList, model.ScreenTime(a))
@@ -82,7 +85,12 @@ func write(report []model.Report) {
 	})
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer w.Flush()
+	defer func() {
+		err := w.Flush()
+		if err != nil {
+			log.Panic(fn, err)
+		}
+	}()
 
 	summary := 0
 
@@ -96,12 +104,22 @@ func write(report []model.Report) {
 		dur := formatDuration(r.TimeMs)
 
 		r := alias.ReplaceAppId2Alias(r)
-		fmt.Fprintf(w, "%s\t %s\n", r.Name, dur)
+		_, err = fmt.Fprintf(w, "%s\t %s\n", r.Name, dur)
+		if err != nil {
+			log.Println(fn, err)
+		}
 	}
 
-	fmt.Fprintln(w, "\t\t")
+	_, err = fmt.Fprintln(w, "\t\t")
+	if err != nil {
+		log.Println(fn, err)
+	}
+
 	dur := formatDuration(summary)
-	fmt.Fprintf(w, "%s\t %s\n", "Summary screen time:", dur)
+	_, err = fmt.Fprintf(w, "%s\t %s\n", "Summary screen time:", dur)
+	if err != nil {
+		log.Println(fn, err)
+	}
 	fmt.Println("")
 }
 

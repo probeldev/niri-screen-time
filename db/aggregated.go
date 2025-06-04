@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	"time"
 
 	"github.com/probeldev/niri-screen-time/model"
@@ -23,6 +24,7 @@ func (astdb *AggregatedScreenTimeDB) Insert(ast model.AggregatedScreenTime) erro
 }
 
 func (astdb *AggregatedScreenTimeDB) BulkInsert(records []model.AggregatedScreenTime) error {
+	fn := "AggregatedScreenTimeDB:BulkInsert"
 	tx, err := astdb.conn.db.Begin()
 	if err != nil {
 		return err
@@ -30,14 +32,25 @@ func (astdb *AggregatedScreenTimeDB) BulkInsert(records []model.AggregatedScreen
 
 	stmt, err := tx.Prepare("INSERT INTO aggregated_screen_time(date, app_id, title, sleep) VALUES(?, ?, ?, ?)")
 	if err != nil {
-		tx.Rollback()
+		e := tx.Rollback()
+		if e != nil {
+			log.Println(fn, err)
+		}
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		err = stmt.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	for _, st := range records {
 		if _, err := stmt.Exec(st.Date, st.AppID, st.Title, st.Sleep); err != nil {
-			tx.Rollback()
+			e := tx.Rollback()
+			if e != nil {
+				log.Println(fn, err)
+			}
 			return err
 		}
 	}
@@ -52,6 +65,8 @@ func (astdb *AggregatedScreenTimeDB) GetByDateRange(
 	[]model.AggregatedScreenTime,
 	error,
 ) {
+	fn := "AggregatedScreenTimeDB:GetByDateRange"
+
 	rows, err := astdb.conn.db.Query(
 		"SELECT date, app_id, title, sleep FROM aggregated_screen_time WHERE date BETWEEN ? AND ? ORDER BY date",
 		from, to,
@@ -59,7 +74,12 @@ func (astdb *AggregatedScreenTimeDB) GetByDateRange(
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	var results []model.AggregatedScreenTime
 	for rows.Next() {
@@ -74,6 +94,7 @@ func (astdb *AggregatedScreenTimeDB) GetByDateRange(
 }
 
 func (astdb *AggregatedScreenTimeDB) GetAppUsage(from, to time.Time) (map[string]int, error) {
+	fn := "AggregatedScreenTimeDb:GetAppUsage"
 	rows, err := astdb.conn.db.Query(
 		"SELECT app_id, SUM(sleep) FROM aggregated_screen_time WHERE date BETWEEN ? AND ? GROUP BY app_id",
 		from, to,
@@ -81,7 +102,12 @@ func (astdb *AggregatedScreenTimeDB) GetAppUsage(from, to time.Time) (map[string
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	result := make(map[string]int)
 	for rows.Next() {

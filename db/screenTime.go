@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	"time"
 
 	"github.com/probeldev/niri-screen-time/model"
@@ -23,6 +24,7 @@ func (stdb *ScreenTimeDB) Insert(st model.ScreenTime) error {
 }
 
 func (stdb *ScreenTimeDB) BulkInsert(records []model.ScreenTime) error {
+	fn := "ScreenTimeDB:BulkInsert"
 	tx, err := stdb.conn.db.Begin()
 	if err != nil {
 		return err
@@ -30,14 +32,25 @@ func (stdb *ScreenTimeDB) BulkInsert(records []model.ScreenTime) error {
 
 	stmt, err := tx.Prepare("INSERT INTO screen_time(date, app_id, title, sleep) VALUES(?, ?, ?, ?)")
 	if err != nil {
-		tx.Rollback()
+		e := tx.Rollback()
+		if e != nil {
+			log.Println(fn, err)
+		}
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		err = stmt.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	for _, st := range records {
 		if _, err := stmt.Exec(st.Date, st.AppID, st.Title, st.Sleep); err != nil {
-			tx.Rollback()
+			e := tx.Rollback()
+			if e != nil {
+				log.Println(fn, err)
+			}
 			return err
 		}
 	}
@@ -46,6 +59,7 @@ func (stdb *ScreenTimeDB) BulkInsert(records []model.ScreenTime) error {
 }
 
 func (stdb *ScreenTimeDB) GetByDateRange(from, to time.Time) ([]model.ScreenTime, error) {
+	fn := "ScreenTimeDB:GetByDateRange"
 	rows, err := stdb.conn.db.Query(
 		"SELECT date, app_id, title, sleep FROM screen_time WHERE date BETWEEN ? AND ? ORDER BY date",
 		from, to,
@@ -53,7 +67,12 @@ func (stdb *ScreenTimeDB) GetByDateRange(from, to time.Time) ([]model.ScreenTime
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	var results []model.ScreenTime
 	for rows.Next() {
@@ -68,13 +87,19 @@ func (stdb *ScreenTimeDB) GetByDateRange(from, to time.Time) ([]model.ScreenTime
 }
 
 func (stdb *ScreenTimeDB) GetAll() ([]model.ScreenTime, error) {
+	fn := "ScreenTimeDB:GetAll"
 	rows, err := stdb.conn.db.Query(
 		"SELECT id, date, app_id, title, sleep FROM screen_time ORDER BY date",
 	)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	var results []model.ScreenTime
 	for rows.Next() {
@@ -89,6 +114,7 @@ func (stdb *ScreenTimeDB) GetAll() ([]model.ScreenTime, error) {
 }
 
 func (stdb *ScreenTimeDB) GetAppUsage(from, to time.Time) (map[string]int, error) {
+	fn := "ScreenTimeDB:GetAppUsage"
 	rows, err := stdb.conn.db.Query(
 		"SELECT app_id, SUM(sleep) FROM screen_time WHERE date BETWEEN ? AND ? GROUP BY app_id",
 		from, to,
@@ -96,7 +122,12 @@ func (stdb *ScreenTimeDB) GetAppUsage(from, to time.Time) (map[string]int, error
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Println(fn, err)
+		}
+	}()
 
 	result := make(map[string]int)
 	for rows.Next() {
