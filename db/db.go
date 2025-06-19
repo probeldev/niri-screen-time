@@ -16,7 +16,9 @@ func getDbPath() (string, error) {
 	dbDir := filepath.Join(homeDir, ".local", "share", "niri-screen-time")
 	dbPath := filepath.Join(dbDir, "db.db")
 
-	if err := os.MkdirAll(dbDir, 0755); err != nil {
+	var perm uint32 = 0755
+
+	if err := os.MkdirAll(dbDir, os.FileMode(perm)); err != nil {
 		return "", fmt.Errorf("failed to create directory %s: %w", dbDir, err)
 	}
 

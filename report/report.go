@@ -103,8 +103,8 @@ func write(report []model.Report) {
 		summary += r.TimeMs
 		dur := formatDuration(r.TimeMs)
 
-		r := alias.ReplaceAppId2Alias(r)
-		_, err = fmt.Fprintf(w, "%s\t %s\n", r.Name, dur)
+		alias := alias.ReplaceAppId2Alias(r)
+		_, err = fmt.Fprintf(w, "%s\t %s\n", alias.Name, dur)
 		if err != nil {
 			log.Println(fn, err)
 		}

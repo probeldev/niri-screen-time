@@ -78,11 +78,10 @@ func (am *aggregateManager) aggregateWorker() {
 	log.Println("finished")
 }
 
-func (am *aggregateManager) needAggregate(
+func (*aggregateManager) needAggregate(
 	aggregate model.AggregatedScreenTime,
 	screenTime model.ScreenTime,
 ) bool {
-
 	if aggregate.AppID != screenTime.AppID {
 		return false
 	}
