@@ -21,7 +21,6 @@ func GetReport(
 	from time.Time,
 	to time.Time,
 ) error {
-
 	response := map[string]model.Report{}
 
 	screenTimeList, err := dbScreenTime.GetByDateRange(

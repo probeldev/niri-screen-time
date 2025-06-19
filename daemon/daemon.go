@@ -27,7 +27,6 @@ func Run(cache *cache.ScreenTimeCache) {
 
 			for _, w := range windows {
 				if w.IsFocused {
-
 					sc := model.ScreenTime{
 						Date:  time.Now(),
 						AppID: w.AppID,
