@@ -15,11 +15,9 @@ const (
 )
 
 func Run(cache *cache.ScreenTimeCache) {
-
 	fn := "daemon:Run"
 
 	for {
-
 		go func() {
 			windows, err := niriwindows.GetWindowsList()
 

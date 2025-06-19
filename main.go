@@ -28,10 +28,7 @@ func main() {
 }
 
 func run() error {
-	cfg, err := parseFlags()
-	if err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
-	}
+	cfg := parseFlags()
 
 	if cfg.IsDaemon {
 		return runDaemonMode()
@@ -39,7 +36,7 @@ func run() error {
 	return runReportMode(cfg.From, cfg.To)
 }
 
-func parseFlags() (*Config, error) {
+func parseFlags() *Config {
 	cfg := &Config{}
 
 	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
@@ -47,7 +44,7 @@ func parseFlags() (*Config, error) {
 	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
 	flag.Parse()
 
-	return cfg, nil
+	return cfg
 }
 
 func runDaemonMode() error {
