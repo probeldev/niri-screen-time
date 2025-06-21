@@ -8,6 +8,7 @@
 ## Support Wayland compositor:
 
 Niri
+
 Hyprland
 
 ## Установка
