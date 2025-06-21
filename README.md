@@ -120,4 +120,4 @@ Hyprland
 ]
 ```
 
-
+Made in Belarus with ❤️
