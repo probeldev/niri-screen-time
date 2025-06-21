@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	niriwindows "github.com/probeldev/niri-float-sticky/niri-windows"
+	"github.com/probeldev/niri-screen-time/activewindowmanager"
 	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/model"
 )
@@ -17,25 +17,27 @@ const (
 func Run(cache *cache.ScreenTimeCache) {
 	fn := "daemon:Run"
 
+	wm, err := activewindowmanager.GetActiveWindowManager()
+	if err != nil {
+		log.Panic(fn, err)
+	}
+
 	for {
 		go func() {
-			windows, err := niriwindows.GetWindowsList()
-
+			appId, title, err := wm.GetActiveWindow()
 			if err != nil {
 				log.Panic(fn, err)
 			}
 
-			for _, w := range windows {
-				if w.IsFocused {
-					sc := model.ScreenTime{
-						Date:  time.Now(),
-						AppID: w.AppID,
-						Title: w.Title,
-						Sleep: sleepMs,
-					}
-
-					cache.Add(sc)
+			if appId != "" {
+				sc := model.ScreenTime{
+					Date:  time.Now(),
+					AppID: appId,
+					Title: title,
+					Sleep: sleepMs,
 				}
+
+				cache.Add(sc)
 			}
 		}()
 
