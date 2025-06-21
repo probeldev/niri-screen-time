@@ -29,8 +29,8 @@ func GetActiveWindowManager() (
 		return nil, errors.New("XDG_CURRENT_DESKTOP is not setup")
 	}
 
-	switch desktop {
-	case strings.ToLower(string(CompositorTypeNiri)):
+	switch strings.ToLower(desktop) {
+	case string(CompositorTypeNiri):
 		manager := niri.NewNiriActiveWindow()
 		return manager, nil
 	case string(CompositorTypeHyprland):
