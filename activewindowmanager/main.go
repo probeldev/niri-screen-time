@@ -5,6 +5,7 @@ import (
 	"github.com/probeldev/niri-screen-time/activewindowmanager/hyprland"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/niri"
 	"os"
+	"strings"
 )
 
 type ActiveWindowManagerInterface interface {
@@ -29,7 +30,7 @@ func GetActiveWindowManager() (
 	}
 
 	switch desktop {
-	case string(CompositorTypeNiri):
+	case strings.ToLower(string(CompositorTypeNiri)):
 		manager := niri.NewNiriActiveWindow()
 		return manager, nil
 	case string(CompositorTypeHyprland):
