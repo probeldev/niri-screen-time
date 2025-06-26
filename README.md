@@ -1,6 +1,6 @@
 # Niri Screen Time
 
-Утилита, которая собирает информацию о том, сколько времени проводишь в каждом из приложений.
+A utility that collects information about how much time you spend in each application.
 
 ![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/screenshots/report.png?raw=true)
 
@@ -22,47 +22,47 @@ Hyprland
     
     nix profile install github:probeldev/niri-screen-time
 
-## Использование 
+## Usage 
 
-Запуск демона
+Start the daemon:
 
     niri-screen-time -daemon 
 
-Просмотр данных(По умолчанию за сегодня)
+View data (default: today's data):
 
     niri-screen-time 
 
-Просмотр данных, от выбранной даты по сегодня 
+View data from a selected date until today:
     
     niri-screen-time -from=2023-10-20
 
-Просмотр данных, диапазон данных
+View data within a date range:
 
     niri-screen-time -from=2023-10-01 -to=2023-10-31 
 
 
-## Конфигурация подпрограмм и сайтов
+## Subroutine and Website Configuration
 
-Для определения конкретных сайтов или консольных команд внутри приложений используется файл конфигурации:
+To track specific websites or console commands within applications, use the configuration file:
 
-**Расположение:**  
+**Location:**  
 `~/.config/niri-screen-time/subprograms.json`
 
-### Формат конфигурации
+### Configuration Format
 ```json
 [
   {
-    "app_id": "идентификатор_приложения",
-    "title": "часть_заголовка_окна",
-    "alias": "отображаемое_название"
+    "app_id": "application_identifier",
+    "title": "partial_window_title",
+    "alias": "display_name"
   }
 ]
 
 ```
 
-### Примеры конфигурации
+### Configuration Examples
 
-Для терминальных команд:
+For terminal commands:
 
 ```json
 {
@@ -72,7 +72,7 @@ Hyprland
 }
 ```
 
-Для веб-сайтов в браузере:
+For websites in browser:
 
 ```json
 {
@@ -84,34 +84,34 @@ Hyprland
 
 ### Правила работы:
 
-Система проверяет вхождение title в заголовок окна
+The system checks if the title is contained in the window title
 
-Регистр символов не учитывается
+Case insensitive
 
-При совпадении к app_id добавляется указанный alias в скобках
+When matched: adds the specified alias in parentheses to the app ID
 
-Если приложение есть в списке, но заголовок не совпал - добавляется "(Other)"
+If the app is in the list but the title doesn't match: adds (Other)
 
-Файл автоматически создаётся с примерами при первом запуске
+The config file is automatically created with examples on first launch
 
-## Конфигурация алиасов приложений
+## Application Alias Configuration
 
-Для удобного отображения названий приложений в отчётах вы можете настроить алиасы (псевдонимы) в файле конфигурации.
-Система проверяет частичное совпадение (если name содержится в названии приложения).
+To display custom application names in reports, you can configure aliases in the config file.
+The system checks for partial matches (if the name is contained in the application title).
 
-### Файл конфигурации
+### Configuration File
 
-Расположение:
+**Location:**  
 
     ~/.config/niri-screen-time/alias.json
 
-### Формат файла
+### Configuration Format
 
 ```json
 [
   {
-    "name": "оригинальное_название_приложения",
-    "alias": "желаемое_название"
+    "name": "original_application_name",
+    "alias": "custom_display_name"
   },
   {
     "name": "org.telegram.desktop",
