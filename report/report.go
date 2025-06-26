@@ -131,8 +131,8 @@ func formatDuration(ms int) string {
 	minutes := seconds / 60
 	hours := minutes / 60
 
-	seconds = seconds % 60
-	minutes = minutes % 60
+	seconds %= 60
+	minutes %= 60
 
 	parts := []string{}
 

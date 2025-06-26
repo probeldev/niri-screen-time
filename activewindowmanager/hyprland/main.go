@@ -16,24 +16,23 @@ func (hyprlandActiveWindow) GetActiveWindow() (
 	string,
 	error,
 ) {
-
-	appId := ""
+	appID := ""
 	title := ""
 
 	output, err := bash.RunCommand("hyprctl activewindow")
 	if err != nil {
-		return appId, title, err
+		return appID, title, err
 	}
 
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "class:") {
-			appId = strings.TrimSpace(strings.TrimPrefix(line, "class:"))
-		} else if strings.HasPrefix(line, "title:") {
-			title = strings.TrimSpace(strings.TrimPrefix(line, "title:"))
+		if after, found := strings.CutPrefix(line, "class:"); found {
+			appID = strings.TrimSpace(after)
+		} else if after, found := strings.CutPrefix(line, "title:"); found {
+			title = strings.TrimSpace(after)
 		}
 	}
 
-	return appId, title, nil
+	return appID, title, nil
 }

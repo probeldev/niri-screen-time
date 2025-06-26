@@ -23,7 +23,6 @@ func GetActiveWindowManager() (
 	ActiveWindowManagerInterface,
 	error,
 ) {
-
 	desktop := os.Getenv("XDG_CURRENT_DESKTOP")
 	if desktop == "" {
 		return nil, errors.New("XDG_CURRENT_DESKTOP is not setup")
