@@ -11,7 +11,7 @@ Niri
 
 Hyprland
 
-## Установка
+## Installation
 
 ### go 
 
