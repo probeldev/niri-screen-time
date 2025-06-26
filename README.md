@@ -82,7 +82,7 @@ For websites in browser:
 }
 ```
 
-### Правила работы:
+### How It Works:
 
 The system checks if the title is contained in the window title
 
