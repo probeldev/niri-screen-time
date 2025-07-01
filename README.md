@@ -120,4 +120,5 @@ The system checks for partial matches (if the name is contained in the applicati
 ]
 ```
 
-Made in Belarus with ❤️
+## License  
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
