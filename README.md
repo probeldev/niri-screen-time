@@ -116,7 +116,7 @@ The system checks for partial matches (if the name is contained in the applicati
 **Location:**  
 
 ```
-    ~/.config/niri-screen-time/alias.json
+~/.config/niri-screen-time/alias.json
 ```
 
 ### Configuration Format
