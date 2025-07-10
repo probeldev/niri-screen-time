@@ -15,30 +15,42 @@ Hyprland
 
 ### go 
 
-    go install github.com/probeldev/niri-screen-time@latest     
+```bash
+go install github.com/probeldev/niri-screen-time@latest
+```
 
 
 ### nix 
-    
+
+```bash 
     nix profile install github:probeldev/niri-screen-time
+```
 
 ## Usage 
 
 Start the daemon:
 
-    niri-screen-time -daemon 
+```bash
+niri-screen-time -daemon 
+```
 
 View data (default: today's data):
 
-    niri-screen-time 
+```bash
+niri-screen-time 
+```
 
 View data from a selected date until today:
-    
-    niri-screen-time -from=2023-10-20
+  
+```bash
+niri-screen-time -from=2023-10-20
+```
 
 View data within a date range:
 
-    niri-screen-time -from=2023-10-01 -to=2023-10-31 
+```bash
+niri-screen-time -from=2023-10-01 -to=2023-10-31 
+```
 
 
 ## Subroutine and Website Configuration
@@ -103,7 +115,9 @@ The system checks for partial matches (if the name is contained in the applicati
 
 **Location:**  
 
+```
     ~/.config/niri-screen-time/alias.json
+```
 
 ### Configuration Format
 
