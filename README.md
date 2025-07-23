@@ -43,6 +43,8 @@ echo "export PATH=\$PATH:~/go/bin" >> ~/.bashrc
 
 ## Usage 
 
+Daemon — a background service that collects data on application usage time (requires adding to startup for proper operation).
+
 Start the daemon:
 
 ```bash
