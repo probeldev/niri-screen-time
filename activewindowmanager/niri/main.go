@@ -1,7 +1,11 @@
+// Package niri. Realization for wayland compositor Niri
 package niri
 
 import (
-	niriwindows "github.com/probeldev/niri-float-sticky/niri-windows"
+	"encoding/json"
+	"fmt"
+
+	"github.com/probeldev/niri-screen-time/bash"
 )
 
 type niriActiveWindow struct{}
@@ -10,12 +14,31 @@ func NewNiriActiveWindow() *niriActiveWindow {
 	return &niriActiveWindow{}
 }
 
-func (niriActiveWindow) GetActiveWindow() (
+func (nw *niriActiveWindow) GetWindowsList() ([]Window, error) {
+	output, err := bash.RunCommand("niri msg --json windows")
+	if err != nil {
+		return nil, err
+	}
+
+	windows, err := nw.ParseWindows([]byte(output))
+
+	return windows, err
+}
+
+func (nw *niriActiveWindow) ParseWindows(output []byte) ([]Window, error) {
+	var windows []Window
+	if err := json.Unmarshal(output, &windows); err != nil {
+		return nil, fmt.Errorf("error unmarshalling windows: %w", err)
+	}
+	return windows, nil
+}
+
+func (nw *niriActiveWindow) GetActiveWindow() (
 	string,
 	string,
 	error,
 ) {
-	windows, err := niriwindows.GetWindowsList()
+	windows, err := nw.GetWindowsList()
 
 	if err != nil {
 		return "", "", err
