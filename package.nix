@@ -4,5 +4,5 @@
 buildGoModule {
   name = "niri-screen-time";
   src = ./.;
-  vendorHash = "sha256-SblBwcO38l+9aUIjKGmOJiSYhgTIB9ZNPr6NCKSEsRE=";
+  vendorHash = "sha256-kgZbXuwlNpKCqZmV+ii/AFT2RBoNxWzx140K1tb3YxQ=";
 }
