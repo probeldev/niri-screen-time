@@ -15,7 +15,7 @@ type DBConnection struct {
 }
 
 func NewDBConnection() (*DBConnection, error) {
-	dbPath, err := getDbPath()
+	dbPath, err := getDBPath()
 	if err != nil {
 		return nil, err
 	}

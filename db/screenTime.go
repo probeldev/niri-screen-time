@@ -142,7 +142,7 @@ func (stdb *ScreenTimeDB) GetAppUsage(from, to time.Time) (map[string]int, error
 	return result, nil
 }
 
-func (stdb *ScreenTimeDB) DeleteById(screenTime model.ScreenTime) error {
+func (stdb *ScreenTimeDB) DeleteByID(screenTime model.ScreenTime) error {
 	_, err := stdb.conn.db.Exec("DELETE FROM screen_time WHERE id = ?", screenTime.ID)
 	return err
 }

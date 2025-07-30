@@ -1,3 +1,4 @@
+// Package db implements SQLite storage.
 package db
 
 import (
@@ -6,8 +7,8 @@ import (
 	"path/filepath"
 )
 
-// getDbPath возвращает путь к файлу базы данных
-func getDbPath() (string, error) {
+// getDBPath возвращает путь к файлу базы данных
+func getDBPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)

@@ -64,7 +64,7 @@ func (am *aggregateManager) aggregateWorker() {
 		}
 
 		for _, std := range screenTimeForDelete {
-			err := am.screenTimeDb.DeleteById(std)
+			err := am.screenTimeDb.DeleteByID(std)
 			if err != nil {
 				log.Println(fn, err)
 				return
