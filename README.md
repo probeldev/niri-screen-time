@@ -20,8 +20,7 @@ go install github.com/probeldev/niri-screen-time@latest
 ```
 
 If you get an error claiming that niri-screen-time cannot be found or is not defined, you
-may need to add `~/go/bin` to your $PATH (MacOS/Linux), or `%HOME%\go\bin`
-(Windows)
+may need to add `~/go/bin` to your $PATH 
 
 Zsh
 
