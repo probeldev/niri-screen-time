@@ -74,24 +74,24 @@ func runDaemonMode() error {
 	}
 
 	screenDB := db.NewScreenTimeDB(conn)
-	aggregateDb := db.NewAggregatedScreenTimeDB(conn)
+	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
 	go func() {
 		am := aggregatemanager.NewAggragetManager(
 			*screenDB,
-			*aggregateDb,
+			*aggregateDB,
 		)
 
 		am.Aggregate()
 	}()
 
-	cache := cache.NewScreenTimeCache(screenDB, 5*time.Second, 100)
-	cache.Start()
-	defer cache.Stop()
+	screenTimeCache := cache.NewScreenTimeCache(screenDB, 5*time.Second, 100)
+	screenTimeCache.Start()
+	defer screenTimeCache.Stop()
 
 	log.Println("Starting daemon...")
 
-	daemon.Run(cache)
+	daemon.Run(screenTimeCache)
 
 	return nil
 }
@@ -114,7 +114,7 @@ func runReportMode(fromStr, toStr string) error {
 		log.Panic(fn, err)
 	}
 
-	screenTimeDb := db.NewScreenTimeDB(conn)
+	screenTimeDB := db.NewScreenTimeDB(conn)
 
 	from, to, err := parseDates(fromStr, toStr)
 	if err != nil {
@@ -125,9 +125,9 @@ func runReportMode(fromStr, toStr string) error {
 		from.Format("2006-01-02 15:04:05"),
 		to.Format("2006-01-02 15:04:05"))
 
-	aggregateDb := db.NewAggregatedScreenTimeDB(conn)
+	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
-	return report.GetReport(screenTimeDb, aggregateDb, from, to)
+	return report.GetReport(screenTimeDB, aggregateDB, from, to)
 }
 
 func parseDates(fromStr, toStr string) (time.Time, time.Time, error) {

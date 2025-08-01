@@ -1,3 +1,4 @@
+// Package daemon - a background service that collects data on application usage time (requires adding to startup for proper operation).
 package daemon
 
 import (
@@ -14,7 +15,7 @@ const (
 	filename = "/home/sergey/screen-time.txt"
 )
 
-func Run(cache *cache.ScreenTimeCache) {
+func Run(stc *cache.ScreenTimeCache) {
 	fn := "daemon:Run"
 
 	wm, err := activewindowmanager.GetActiveWindowManager()
@@ -24,20 +25,20 @@ func Run(cache *cache.ScreenTimeCache) {
 
 	for {
 		go func() {
-			appId, title, err := wm.GetActiveWindow()
+			appID, title, err := wm.GetActiveWindow()
 			if err != nil {
 				log.Panic(fn, err)
 			}
 
-			if appId != "" {
+			if appID != "" {
 				sc := model.ScreenTime{
 					Date:  time.Now(),
-					AppID: appId,
+					AppID: appID,
 					Title: title,
 					Sleep: sleepMs,
 				}
 
-				cache.Add(sc)
+				stc.Add(sc)
 			}
 		}()
 
