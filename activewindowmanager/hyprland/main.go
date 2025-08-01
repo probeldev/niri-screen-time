@@ -1,8 +1,10 @@
+// Package hyprland - implementation for hyprland wayland conpositor
 package hyprland
 
 import (
-	"github.com/probeldev/niri-screen-time/bash"
 	"strings"
+
+	"github.com/probeldev/niri-screen-time/bash"
 )
 
 type hyprlandActiveWindow struct{}
@@ -12,13 +14,10 @@ func NewHyprlandActiveWindow() *hyprlandActiveWindow {
 }
 
 func (hyprlandActiveWindow) GetActiveWindow() (
-	string,
-	string,
-	error,
+	appID string,
+	title string,
+	err error,
 ) {
-	appID := ""
-	title := ""
-
 	output, err := bash.RunCommand("hyprctl activewindow")
 	if err != nil {
 		return appID, title, err

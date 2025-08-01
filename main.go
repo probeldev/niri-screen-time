@@ -130,7 +130,14 @@ func runReportMode(fromStr, toStr string) error {
 	return report.GetReport(screenTimeDB, aggregateDB, from, to)
 }
 
-func parseDates(fromStr, toStr string) (time.Time, time.Time, error) {
+func parseDates(
+	fromStr,
+	toStr string,
+) (
+	from time.Time,
+	to time.Time,
+	err error,
+) {
 	now := time.Now()
 	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	todayEnd := todayStart.Add(24*time.Hour - 1*time.Nanosecond)
@@ -142,12 +149,12 @@ func parseDates(fromStr, toStr string) (time.Time, time.Time, error) {
 		return time.Parse("2006-01-02", dateStr)
 	}
 
-	from, err := parseDate(fromStr, todayStart)
+	from, err = parseDate(fromStr, todayStart)
 	if err != nil {
 		return time.Time{}, time.Time{}, fmt.Errorf("invalid from date: %w", err)
 	}
 
-	to, err := parseDate(toStr, todayEnd)
+	to, err = parseDate(toStr, todayEnd)
 	if err != nil {
 		return time.Time{}, time.Time{}, fmt.Errorf("invalid to date: %w", err)
 	}
