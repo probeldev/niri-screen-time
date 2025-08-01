@@ -34,9 +34,9 @@ func (nw *niriActiveWindow) ParseWindows(output []byte) ([]Window, error) {
 }
 
 func (nw *niriActiveWindow) GetActiveWindow() (
-	string,
-	string,
-	error,
+	appID string,
+	title string,
+	err error,
 ) {
 	windows, err := nw.GetWindowsList()
 
