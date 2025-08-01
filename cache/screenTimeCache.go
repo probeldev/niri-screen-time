@@ -21,9 +21,9 @@ type ScreenTimeCache struct {
 }
 
 // NewScreenTimeCache создает новый кэш
-func NewScreenTimeCache(db *db.ScreenTimeDB, flushPeriod time.Duration, maxBuffer int) *ScreenTimeCache {
+func NewScreenTimeCache(screentimedb *db.ScreenTimeDB, flushPeriod time.Duration, maxBuffer int) *ScreenTimeCache {
 	return &ScreenTimeCache{
-		db:          db,
+		db:          screentimedb,
 		buffer:      make([]model.ScreenTime, 0, maxBuffer),
 		flushPeriod: flushPeriod,
 		maxBuffer:   maxBuffer,

@@ -1,3 +1,4 @@
+// Package subprogrammanager - implementation subprogram
 package subprogrammanager
 
 import (
@@ -70,6 +71,6 @@ func (spm *SubProgramManager) GetSubProgram(st model.ScreenTime) model.ScreenTim
 		}
 	}
 
-	st.AppID = st.AppID + " (Other)"
+	st.AppID += " (Other)"
 	return st
 }
