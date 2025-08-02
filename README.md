@@ -37,7 +37,7 @@ echo "export PATH=\$PATH:~/go/bin" >> ~/.bashrc
 ### nix 
 
 ```bash 
-    nix profile install github:probeldev/niri-screen-time
+nix profile install github:probeldev/niri-screen-time
 ```
 
 ## Usage 
