@@ -39,10 +39,18 @@ func run() error {
 func parseFlags() *Config {
 	cfg := &Config{}
 
+	showVersion := false
+
 	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
 	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	return cfg
 }
