@@ -1,3 +1,4 @@
+// Package model
 package model
 
 type Report struct {

@@ -1,5 +1,5 @@
-// Package report need for write report by using apps
-package report
+// Package details write details for using apps
+package details
 
 import (
 	"fmt"
@@ -13,14 +13,16 @@ import (
 	"github.com/probeldev/niri-screen-time/aliasmanager"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
-	"github.com/probeldev/niri-screen-time/subprogrammanager"
 )
 
-func GetReport(
+func GetDetails(
 	dbScreenTime *db.ScreenTimeDB,
 	dbAggregate *db.AggregatedScreenTimeDB,
 	from time.Time,
 	to time.Time,
+	appID string,
+	title string,
+	limit int,
 ) error {
 	response := map[string]model.Report{}
 
@@ -46,22 +48,24 @@ func GetReport(
 	}
 
 	summary := 0
-	subProgram, err := subprogrammanager.NewSubProgramManager()
-
-	if err != nil {
-		return err
-	}
 
 	for _, st := range screenTimeList {
 		summary += st.Sleep
-		st = subProgram.GetSubProgram(st)
 
-		if report, ok := response[st.AppID]; ok {
+		if st.AppID != appID {
+			continue
+		}
+
+		if !strings.Contains(st.Title, title) {
+			continue
+		}
+
+		if report, ok := response[st.Title]; ok {
 			report.TimeMs += st.Sleep
-			response[st.AppID] = report
+			response[st.Title] = report
 		} else {
-			response[st.AppID] = model.Report{
-				Name:   st.AppID,
+			response[st.Title] = model.Report{
+				Name:   st.Title,
 				TimeMs: st.Sleep,
 			}
 		}
@@ -72,13 +76,13 @@ func GetReport(
 		responseSlice = append(responseSlice, responseApp)
 	}
 
-	write(responseSlice)
+	write(responseSlice, limit)
 
 	return nil
 }
 
 // TODO: move to new package
-func write(report []model.Report) {
+func write(report []model.Report, limit int) {
 	fn := "report:write"
 
 	sort.Slice(report, func(i, j int) bool {
@@ -100,7 +104,10 @@ func write(report []model.Report) {
 		log.Panic(fn, err)
 	}
 
-	for _, r := range report {
+	for i, r := range report {
+		if limit != 0 && i == limit {
+			break
+		}
 		summary += r.TimeMs
 		dur := formatDuration(r.TimeMs)
 

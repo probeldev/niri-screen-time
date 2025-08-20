@@ -11,13 +11,18 @@ import (
 	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/daemon"
 	"github.com/probeldev/niri-screen-time/db"
+	"github.com/probeldev/niri-screen-time/details"
 	"github.com/probeldev/niri-screen-time/report"
 )
 
 type Config struct {
-	IsDaemon bool
-	From     string
-	To       string
+	IsDaemon  bool
+	IsDetails bool
+	From      string
+	To        string
+	AppID     string
+	Title     string
+	Limit     int
 }
 
 func main() {
@@ -33,6 +38,15 @@ func run() error {
 	if cfg.IsDaemon {
 		return runDaemonMode()
 	}
+	if cfg.IsDetails {
+		return runDetailsMode(
+			cfg.From,
+			cfg.To,
+			cfg.AppID,
+			cfg.Title,
+			cfg.Limit,
+		)
+	}
 	return runReportMode(cfg.From, cfg.To)
 }
 
@@ -42,8 +56,12 @@ func parseFlags() *Config {
 	showVersion := false
 
 	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
+	flag.BoolVar(&cfg.IsDetails, "details", false, "View details")
 	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
+	flag.StringVar(&cfg.AppID, "appid", "", "AppId")
+	flag.StringVar(&cfg.Title, "title", "", "Substring to match in titles")
+	flag.IntVar(&cfg.Limit, "limit", 0, "Limit of response line, defaults to unlimited")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.Parse()
 
@@ -104,7 +122,10 @@ func runDaemonMode() error {
 	return nil
 }
 
-func runReportMode(fromStr, toStr string) error {
+func runReportMode(
+	fromStr string,
+	toStr string,
+) error {
 	fn := "runReportMode"
 	// Создаем подключение к БД
 	conn, err := db.NewDBConnection()
@@ -136,6 +157,54 @@ func runReportMode(fromStr, toStr string) error {
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
 	return report.GetReport(screenTimeDB, aggregateDB, from, to)
+}
+
+func runDetailsMode(
+	fromStr string,
+	toStr string,
+	appID string,
+	title string,
+	limit int,
+) error {
+	fn := "runDetailsMode"
+	// Создаем подключение к БД
+	conn, err := db.NewDBConnection()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		err = conn.Close()
+		if err != nil {
+			log.Panic(fn, err)
+		}
+	}()
+
+	if err = conn.InitTables(); err != nil {
+		log.Panic(fn, err)
+	}
+
+	screenTimeDB := db.NewScreenTimeDB(conn)
+
+	from, to, err := parseDates(fromStr, toStr)
+	if err != nil {
+		return fmt.Errorf("failed to parse dates: %w", err)
+	}
+
+	fmt.Printf("\nReport period: %s to %s\n",
+		from.Format("2006-01-02 15:04:05"),
+		to.Format("2006-01-02 15:04:05"))
+
+	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
+
+	return details.GetDetails(
+		screenTimeDB,
+		aggregateDB,
+		from,
+		to,
+		appID,
+		title,
+		limit,
+	)
 }
 
 func parseDates(
