@@ -16,13 +16,14 @@ import (
 )
 
 type Config struct {
-	IsDaemon  bool
-	IsDetails bool
-	From      string
-	To        string
-	AppID     string
-	Title     string
-	Limit     int
+	IsDaemon   bool
+	IsDetails  bool
+	From       string
+	To         string
+	AppID      string
+	Title      string
+	Limit      int
+	IsOnlyText bool
 }
 
 func main() {
@@ -45,9 +46,13 @@ func run() error {
 			cfg.AppID,
 			cfg.Title,
 			cfg.Limit,
+			cfg.IsOnlyText,
 		)
 	}
-	return runReportMode(cfg.From, cfg.To)
+	return runReportMode(
+		cfg.From,
+		cfg.To,
+	)
 }
 
 func parseFlags() *Config {
@@ -57,6 +62,7 @@ func parseFlags() *Config {
 
 	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
 	flag.BoolVar(&cfg.IsDetails, "details", false, "View details")
+	flag.BoolVar(&cfg.IsOnlyText, "onlytext", false, "Hack for remove counter from title")
 	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.AppID, "appid", "", "AppId")
@@ -156,7 +162,12 @@ func runReportMode(
 
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
-	return report.GetReport(screenTimeDB, aggregateDB, from, to)
+	return report.GetReport(
+		screenTimeDB,
+		aggregateDB,
+		from,
+		to,
+	)
 }
 
 func runDetailsMode(
@@ -165,6 +176,7 @@ func runDetailsMode(
 	appID string,
 	title string,
 	limit int,
+	isOnlyText bool,
 ) error {
 	fn := "runDetailsMode"
 	// Создаем подключение к БД
@@ -204,6 +216,7 @@ func runDetailsMode(
 		appID,
 		title,
 		limit,
+		isOnlyText,
 	)
 }
 

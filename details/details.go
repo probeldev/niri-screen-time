@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -24,6 +25,7 @@ func GetDetails(
 	appID string,
 	title string,
 	limit int,
+	isOnlyText bool,
 ) error {
 	response := map[string]model.Report{}
 
@@ -59,6 +61,10 @@ func GetDetails(
 
 		if !strings.Contains(st.Title, title) {
 			continue
+		}
+
+		if isOnlyText {
+			st.Title = onlyText(st.Title)
 		}
 
 		if report, ok := response[st.Title]; ok {
@@ -182,4 +188,18 @@ func truncateString(s string) string {
 
 	// Обрезаем до maxLength символов и добавляем многоточие
 	return string(runes[:maxLength]) + "..."
+}
+
+func onlyText(s string) string {
+	for i := range 10 {
+		s = strings.ReplaceAll(s, strconv.Itoa(i), "")
+	}
+
+	s = strings.ReplaceAll(s, "(", "")
+	s = strings.ReplaceAll(s, ")", "")
+	s = strings.ReplaceAll(s, "–", "")
+	s = strings.ReplaceAll(s, "-", "")
+	s = strings.Trim(s, " ")
+
+	return s
 }
