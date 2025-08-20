@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
+	"unicode/utf8"
 
 	"github.com/probeldev/niri-screen-time/aliasmanager"
 	"github.com/probeldev/niri-screen-time/db"
@@ -104,6 +105,7 @@ func write(report []model.Report, limit int) {
 		log.Panic(fn, err)
 	}
 
+	// TODO: тут не нужны алиасы
 	for i, r := range report {
 		if limit != 0 && i == limit {
 			break
@@ -112,7 +114,9 @@ func write(report []model.Report, limit int) {
 		dur := formatDuration(r.TimeMs)
 
 		alias := alias.ReplaceAppId2Alias(r)
-		_, err = fmt.Fprintf(w, "%s\t %s\n", alias.Name, dur)
+
+		name := truncateString(alias.Name)
+		_, err = fmt.Fprintf(w, "%s\t %s\n", name, dur)
 		if err != nil {
 			log.Println(fn, err)
 		}
@@ -164,4 +168,18 @@ func formatDuration(ms int) string {
 	}
 
 	return strings.Join(parts, " ")
+}
+
+func truncateString(s string) string {
+	maxLength := 80
+	// Если строка короче или равна максимальной длине, возвращаем как есть
+	if utf8.RuneCountInString(s) <= maxLength {
+		return s
+	}
+
+	// Преобразуем строку в срез рун для корректной работы с Unicode
+	runes := []rune(s)
+
+	// Обрезаем до maxLength символов и добавляем многоточие
+	return string(runes[:maxLength]) + "..."
 }
