@@ -40,7 +40,9 @@ echo "export PATH=\$PATH:~/go/bin" >> ~/.bashrc
 nix profile install github:probeldev/niri-screen-time
 ```
 
-## Usage 
+## Modes 
+
+### Daemon
 
 Daemon — a background service that collects data on application usage time (requires adding to startup for proper operation).
 
@@ -50,7 +52,9 @@ Start the daemon:
 niri-screen-time -daemon 
 ```
 
-View data (default: today's data):
+### Report 
+
+(without key)
 
 ```bash
 niri-screen-time 
@@ -66,17 +70,18 @@ View data within a date range:
 
 ```bash
 niri-screen-time -from=2023-10-01 -to=2023-10-31 
+
 ```
 
 
-## Subroutine and Website Configuration
+#### Subroutine and Website Configuration
 
 To track specific websites or console commands within applications, use the configuration file:
 
 **Location:**  
 `~/.config/niri-screen-time/subprograms.json`
 
-### Configuration Format
+##### Configuration Format
 ```json
 [
   {
@@ -88,7 +93,7 @@ To track specific websites or console commands within applications, use the conf
 
 ```
 
-### Configuration Examples
+##### Configuration Examples
 
 For terminal commands:
 
@@ -110,7 +115,7 @@ For websites in browser:
 }
 ```
 
-### How It Works:
+##### How It Works:
 
 The system checks if the title is contained in the window title
 
@@ -122,12 +127,12 @@ If the app is in the list but the title doesn't match: adds (Other)
 
 The config file is automatically created with examples on first launch
 
-## Application Alias Configuration
+#### Application Alias Configuration
 
 To display custom application names in reports, you can configure aliases in the config file.
 The system checks for partial matches (if the name is contained in the application title).
 
-### Configuration File
+##### Configuration File
 
 **Location:**  
 
@@ -135,7 +140,7 @@ The system checks for partial matches (if the name is contained in the applicati
 ~/.config/niri-screen-time/alias.json
 ```
 
-### Configuration Format
+##### Configuration Format
 
 ```json
 [
@@ -148,6 +153,16 @@ The system checks for partial matches (if the name is contained in the applicati
     "alias": "Telegram"
   }
 ]
+```
+
+### Details
+
+This mod adds detailed per-application stats.
+
+```bash
+niri-screen-time -details -appid="org.telegram.desktop" -title="" -from='2025-01-20' -to='2025-08-20' -limit=20 -onlytex
+t
+
 ```
 
 ## License  
