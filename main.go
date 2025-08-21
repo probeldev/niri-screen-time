@@ -52,6 +52,7 @@ func run() error {
 	return runReportMode(
 		cfg.From,
 		cfg.To,
+		cfg.Limit,
 	)
 }
 
@@ -131,6 +132,7 @@ func runDaemonMode() error {
 func runReportMode(
 	fromStr string,
 	toStr string,
+	limit int,
 ) error {
 	fn := "runReportMode"
 	// Создаем подключение к БД
@@ -167,6 +169,7 @@ func runReportMode(
 		aggregateDB,
 		from,
 		to,
+		limit,
 	)
 }
 

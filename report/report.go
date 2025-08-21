@@ -2,17 +2,13 @@
 package report
 
 import (
-	"fmt"
 	"log"
-	"os"
-	"sort"
-	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/probeldev/niri-screen-time/aliasmanager"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
+	"github.com/probeldev/niri-screen-time/response"
 	"github.com/probeldev/niri-screen-time/subprogrammanager"
 )
 
@@ -21,8 +17,9 @@ func GetReport(
 	dbAggregate *db.AggregatedScreenTimeDB,
 	from time.Time,
 	to time.Time,
+	limit int,
 ) error {
-	response := map[string]model.Report{}
+	resp := map[string]model.Report{}
 
 	screenTimeList, err := dbScreenTime.GetByDateRange(
 		from,
@@ -56,11 +53,11 @@ func GetReport(
 		summary += st.Sleep
 		st = subProgram.GetSubProgram(st)
 
-		if report, ok := response[st.AppID]; ok {
+		if report, ok := resp[st.AppID]; ok {
 			report.TimeMs += st.Sleep
-			response[st.AppID] = report
+			resp[st.AppID] = report
 		} else {
-			response[st.AppID] = model.Report{
+			resp[st.AppID] = model.Report{
 				Name:   st.AppID,
 				TimeMs: st.Sleep,
 			}
@@ -68,93 +65,34 @@ func GetReport(
 	}
 
 	responseSlice := []model.Report{}
-	for _, responseApp := range response {
+	for _, responseApp := range resp {
 		responseSlice = append(responseSlice, responseApp)
 	}
 
-	write(responseSlice)
+	responseSlice, err = useAliace(responseSlice)
+	if err != nil {
+		return err
+	}
+
+	response.Write(responseSlice, limit)
 
 	return nil
 }
 
-// TODO: move to new package
-func write(report []model.Report) {
-	fn := "report:write"
-
-	sort.Slice(report, func(i, j int) bool {
-		return report[i].TimeMs > report[j].TimeMs
-	})
-
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer func() {
-		err := w.Flush()
-		if err != nil {
-			log.Panic(fn, err)
-		}
-	}()
-
-	summary := 0
+func useAliace(reports []model.Report) ([]model.Report, error) {
+	fn := "useAliace"
 
 	alias, err := aliasmanager.NewAliasManager()
 	if err != nil {
-		log.Panic(fn, err)
+		log.Println(fn, err)
+		return nil, err
 	}
 
-	for _, r := range report {
-		summary += r.TimeMs
-		dur := formatDuration(r.TimeMs)
-
+	reportsWithAlias := []model.Report{}
+	for _, r := range reports {
 		alias := alias.ReplaceAppId2Alias(r)
-		_, err = fmt.Fprintf(w, "%s\t %s\n", alias.Name, dur)
-		if err != nil {
-			log.Println(fn, err)
-		}
+		reportsWithAlias = append(reportsWithAlias, alias)
 	}
 
-	_, err = fmt.Fprintln(w, "\t\t")
-	if err != nil {
-		log.Println(fn, err)
-	}
-
-	dur := formatDuration(summary)
-	_, err = fmt.Fprintf(w, "%s\t %s\n", "Summary screen time:", dur)
-	if err != nil {
-		log.Println(fn, err)
-	}
-	fmt.Println("")
-}
-
-// TODO: move to new package
-func formatDuration(ms int) string {
-	if ms < 0 {
-		return "0ms"
-	}
-
-	seconds := ms / 1000
-	minutes := seconds / 60
-	hours := minutes / 60
-
-	seconds %= 60
-	minutes %= 60
-
-	parts := []string{}
-
-	if hours > 0 {
-		parts = append(parts, fmt.Sprintf("%dh", hours))
-	}
-	if minutes > 0 {
-		parts = append(parts, fmt.Sprintf("%dm", minutes))
-	}
-	if seconds > 0 {
-		parts = append(parts, fmt.Sprintf("%ds", seconds))
-	}
-	if ms%1000 > 0 && hours == 0 {
-		parts = append(parts, fmt.Sprintf("%dms", ms%1000))
-	}
-
-	if len(parts) == 0 {
-		return "0ms"
-	}
-
-	return strings.Join(parts, " ")
+	return reportsWithAlias, nil
 }
