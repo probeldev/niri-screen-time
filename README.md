@@ -1,46 +1,28 @@
 # Niri Screen Time
-
-A utility that collects information about how much time you spend in each application.
+- A utility that tracks how much time was spent on applications by their class and its title.
 
 ![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/screenshots/report.png?raw=true)
-
-
-## Support Wayland compositor:
-
-Niri
-
-Hyprland
-
+## Supported Wayland Compositors
+- Niri
+- Hyprland
 ## Installation
-
-### go 
-
+### golang
 ```bash
 go install github.com/probeldev/niri-screen-time@latest
 ```
-
-If you get an error claiming that niri-screen-time cannot be found or is not defined, you
-may need to add `~/go/bin` to your $PATH 
-
-Zsh
-
-```bash
-echo "export PATH=\$PATH:~/go/bin" >> ~/.zshrc
-```
-
-Bash
-
-```bash
-echo "export PATH=\$PATH:~/go/bin" >> ~/.bashrc
-```
+> [!NOTE]  
+> If you get an error claiming that `niri-screen-time` cannot be found or that it is not defined, you
+> may need to add `~/go/bin` to your $[PATH](https://jvns.ca/blog/2025/02/13/how-to-add-a-directory-to-your-path/).
 
 ### nix 
 
 ```bash 
 nix profile install github:probeldev/niri-screen-time
 ```
-
-## Modes 
+> [!NOTE]
+> This is an imperative way of installing, and it is not preferred on Nix.
+> You should define it in your Nix configuration instead.
+## Usage
 
 ### Daemon
 
