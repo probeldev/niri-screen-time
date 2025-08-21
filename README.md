@@ -1,12 +1,12 @@
 # Niri Screen Time
-- A utility that tracks how much time was spent on applications by their class and its title.
+A utility that tracks how much time was spent on applications by their class and its title.
 
 ![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/screenshots/report.png?raw=true)
 ## Supported Wayland Compositors
 - Niri
 - Hyprland
 ## Installation
-### golang
+### go
 ```bash
 go install github.com/probeldev/niri-screen-time@latest
 ```
