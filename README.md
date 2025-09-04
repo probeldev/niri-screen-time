@@ -6,6 +6,7 @@ A utility that tracks how much time was spent on applications by their class and
 - Niri
 - Hyprland
 ## Installation
+
 ### go
 ```bash
 go install github.com/probeldev/niri-screen-time@latest
@@ -13,6 +14,12 @@ go install github.com/probeldev/niri-screen-time@latest
 > [!NOTE]  
 > If you get an error claiming that `niri-screen-time` cannot be found or that it is not defined, you
 > may need to add `~/go/bin` to your $[PATH](https://jvns.ca/blog/2025/02/13/how-to-add-a-directory-to-your-path/).
+
+### [aur](https://aur.archlinux.org/packages/niri-screen-time-git)
+
+```bash
+yay -S niri-screen-time-git
+```
 
 ### nix 
 
