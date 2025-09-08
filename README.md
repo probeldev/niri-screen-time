@@ -15,7 +15,7 @@ go install github.com/probeldev/niri-screen-time@latest
 > If you get an error claiming that `niri-screen-time` cannot be found or that it is not defined, you
 > may need to add `~/go/bin` to your $[PATH](https://jvns.ca/blog/2025/02/13/how-to-add-a-directory-to-your-path/).
 
-### [aur](https://aur.archlinux.org/packages/niri-screen-time-git)
+### [aur](https://aur.archlinux.org/packages/niri-screen-time-git) (unofficial)
 
 ```bash
 yay -S niri-screen-time-git
