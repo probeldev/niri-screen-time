@@ -101,7 +101,7 @@ For terminal commands:
         "NeoVim: ~/script/",
         "NeoVim: ~/.config"
     ],
-    "alias": "NeoVim: Редактирование ~/.config"
+    "alias": "NeoVim: edit configs"
 }
 ```
 
