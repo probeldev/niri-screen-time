@@ -120,6 +120,16 @@ For websites in browser:
 }
 ```
 
+Just alias:
+```json
+{
+    "app_ids": [
+        "org.gnome.Nautilus"
+    ],
+    "title_list": [ ],
+    "alias": "Nautilus"
+}
+```
 
 
 ### Details
