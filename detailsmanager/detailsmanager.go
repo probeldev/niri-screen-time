@@ -1,5 +1,5 @@
-// Package details write details for using apps
-package details
+// Package detailsmanager write details for using apps
+package detailsmanager
 
 import (
 	"strconv"
@@ -8,17 +8,32 @@ import (
 
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
-	"github.com/probeldev/niri-screen-time/response"
 )
 
-func GetDetails(
+type ResponseManagerInterface interface {
+	Write([]model.Report)
+}
+
+type dealsManager struct {
+	responseManager ResponseManagerInterface
+}
+
+func NewDealsManager(
+	responseManager ResponseManagerInterface,
+) *dealsManager {
+	d := dealsManager{}
+	d.responseManager = responseManager
+
+	return &d
+}
+
+func (d *dealsManager) GetDetails(
 	dbScreenTime *db.ScreenTimeDB,
 	dbAggregate *db.AggregatedScreenTimeDB,
 	from time.Time,
 	to time.Time,
 	appID string,
 	title string,
-	limit int,
 	isOnlyText bool,
 ) error {
 	resp := map[string]model.Report{}
@@ -58,7 +73,7 @@ func GetDetails(
 		}
 
 		if isOnlyText {
-			st.Title = onlyText(st.Title)
+			st.Title = d.onlyText(st.Title)
 		}
 
 		if report, ok := resp[st.Title]; ok {
@@ -77,12 +92,12 @@ func GetDetails(
 		responseSlice = append(responseSlice, responseApp)
 	}
 
-	response.Write(responseSlice, limit)
+	d.responseManager.Write(responseSlice)
 
 	return nil
 }
 
-func onlyText(s string) string {
+func (d *dealsManager) onlyText(s string) string {
 	for i := range 10 {
 		s = strings.ReplaceAll(s, strconv.Itoa(i), "")
 	}

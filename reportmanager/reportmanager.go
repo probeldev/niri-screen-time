@@ -1,5 +1,5 @@
-// Package report need for write report by using apps
-package report
+// Package reportmanager need for write report by using apps
+package reportmanager
 
 import (
 	"log"
@@ -8,16 +8,31 @@ import (
 	"github.com/probeldev/niri-screen-time/aliasmanager"
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
-	"github.com/probeldev/niri-screen-time/response"
 	"github.com/probeldev/niri-screen-time/subprogrammanager"
 )
 
-func GetReport(
+type ResponseManagerInterface interface {
+	Write([]model.Report)
+}
+
+type reportManager struct {
+	responseManager ResponseManagerInterface
+}
+
+func NewResponseManager(
+	responseManager ResponseManagerInterface,
+) *reportManager {
+	r := reportManager{}
+	r.responseManager = responseManager
+
+	return &r
+}
+
+func (r *reportManager) GetReport(
 	dbScreenTime *db.ScreenTimeDB,
 	dbAggregate *db.AggregatedScreenTimeDB,
 	from time.Time,
 	to time.Time,
-	limit int,
 ) error {
 	resp := map[string]model.Report{}
 
@@ -69,18 +84,18 @@ func GetReport(
 		responseSlice = append(responseSlice, responseApp)
 	}
 
-	responseSlice, err = useAliace(responseSlice)
+	responseSlice, err = r.useAliace(responseSlice)
 	if err != nil {
 		return err
 	}
 
-	response.Write(responseSlice, limit)
+	r.responseManager.Write(responseSlice)
 
 	return nil
 }
 
-func useAliace(reports []model.Report) ([]model.Report, error) {
-	fn := "useAliace"
+func (r *reportManager) useAliace(reports []model.Report) ([]model.Report, error) {
+	fn := "reportManager:useAliace"
 
 	alias, err := aliasmanager.NewAliasManager()
 	if err != nil {
