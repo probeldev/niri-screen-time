@@ -52,8 +52,10 @@ func (spm *SubProgramManager) loadPrograms() error {
 
 func (spm *SubProgramManager) IsSetProgram(st model.ScreenTime) bool {
 	for _, p := range spm.programs {
-		if p.AppID == st.AppID {
-			return true
+		for _, id := range p.AppIDs {
+			if id == st.AppID {
+				return true
+			}
 		}
 	}
 	return false
@@ -65,9 +67,27 @@ func (spm *SubProgramManager) GetSubProgram(st model.ScreenTime) model.ScreenTim
 	}
 
 	for _, p := range spm.programs {
-		if p.AppID == st.AppID && strings.Contains(st.Title, p.Title) {
-			st.AppID = st.AppID + " (" + p.Alias + ")"
+		isCompareID := false
+		for _, id := range p.AppIDs {
+			if id == st.AppID {
+				isCompareID = true
+			}
+		}
+
+		if !isCompareID {
+			continue
+		}
+
+		if len(p.TitleList) == 0 {
+			st.AppID = p.Alias
 			return st
+		}
+
+		for _, title := range p.TitleList {
+			if strings.Contains(st.Title, title) {
+				st.AppID = p.Alias
+				return st
+			}
 		}
 	}
 

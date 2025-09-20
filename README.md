@@ -74,8 +74,14 @@ To track specific websites or console commands within applications, use the conf
 ```json
 [
   {
-    "app_id": "application_identifier",
-    "title": "partial_window_title",
+    "app_id": [
+        "application_identi1",
+        "application_identi2"
+    ],
+    "title": [
+        "partial_window_title1",
+        "partial_window_title2",
+    ],
     "alias": "display_name"
   }
 ]
@@ -88,9 +94,14 @@ For terminal commands:
 
 ```json
 {
-  "app_id": "com.mitchellh.ghostty",
-  "title": "nvim",
-  "alias": "NeoVim Editor"
+    "app_ids": [
+        "com.mitchellh.ghostty"
+    ],
+    "title_list": [
+        "NeoVim: ~/script/",
+        "NeoVim: ~/.config"
+    ],
+    "alias": "NeoVim: edit configs"
 }
 ```
 
@@ -98,51 +109,28 @@ For websites in browser:
 
 ```json
 {
-  "app_id": "org.mozilla.firefox",
-  "title": "GitHub",
-  "alias": "GitHub"
+    "app_ids": [
+        "zen",
+        "app.zen_browser.zen"
+    ],
+    "title_list":[
+        "Monkeytype"
+    ],
+    "alias": "Monkeytype"
 }
 ```
 
-##### How It Works:
-
-The system checks if the title is contained in the window title
-
-Case insensitive
-
-When matched: adds the specified alias in parentheses to the app ID
-
-If the app is in the list but the title doesn't match: adds (Other)
-
-The config file is automatically created with examples on first launch
-
-#### Application Alias Configuration
-
-To display custom application names in reports, you can configure aliases in the config file.
-The system checks for partial matches (if the name is contained in the application title).
-
-##### Configuration File
-
-**Location:**  
-
-```
-~/.config/niri-screen-time/alias.json
-```
-
-##### Configuration Format
-
+Just alias:
 ```json
-[
-  {
-    "name": "original_application_name",
-    "alias": "custom_display_name"
-  },
-  {
-    "name": "org.telegram.desktop",
-    "alias": "Telegram"
-  }
-]
+{
+    "app_ids": [
+        "org.gnome.Nautilus"
+    ],
+    "title_list": [ ],
+    "alias": "Nautilus"
+}
 ```
+
 
 ### Details
 
