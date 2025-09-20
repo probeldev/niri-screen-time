@@ -11,8 +11,10 @@ import (
 	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/daemon"
 	"github.com/probeldev/niri-screen-time/db"
-	"github.com/probeldev/niri-screen-time/details"
-	"github.com/probeldev/niri-screen-time/report"
+	"github.com/probeldev/niri-screen-time/detailsmanager"
+	"github.com/probeldev/niri-screen-time/model"
+	"github.com/probeldev/niri-screen-time/reportmanager"
+	"github.com/probeldev/niri-screen-time/responsemanager"
 )
 
 type Config struct {
@@ -24,6 +26,7 @@ type Config struct {
 	Title      string
 	Limit      int
 	IsOnlyText bool
+	IsJSON     bool
 }
 
 func main() {
@@ -33,26 +36,61 @@ func main() {
 	}
 }
 
+type ResponseManagerInterface interface {
+	Write([]model.Report)
+}
+
+func GetResponseManager(
+	cfg *Config,
+) ResponseManagerInterface {
+
+	fn := "GetResponseManager"
+
+	if cfg.IsJSON {
+		responseManager := responsemanager.NewResponseManagerJSON(
+			cfg.Limit,
+		)
+		return responseManager
+	}
+
+	// TODO: move to parsing flags
+	from, to, err := parseDates(cfg.From, cfg.To)
+	if err != nil {
+		log.Println(fn, err)
+		os.Exit(0)
+	}
+
+	responseManager := responsemanager.NewResponseManagerCli(
+		from,
+		to,
+		cfg.Limit,
+	)
+	return responseManager
+}
+
 func run() error {
 	cfg := parseFlags()
 
 	if cfg.IsDaemon {
 		return runDaemonMode()
 	}
+
+	responseManager := GetResponseManager(cfg)
+
 	if cfg.IsDetails {
 		return runDetailsMode(
 			cfg.From,
 			cfg.To,
 			cfg.AppID,
 			cfg.Title,
-			cfg.Limit,
 			cfg.IsOnlyText,
+			responseManager,
 		)
 	}
 	return runReportMode(
 		cfg.From,
 		cfg.To,
-		cfg.Limit,
+		responseManager,
 	)
 }
 
@@ -64,6 +102,7 @@ func parseFlags() *Config {
 	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
 	flag.BoolVar(&cfg.IsDetails, "details", false, "View details")
 	flag.BoolVar(&cfg.IsOnlyText, "onlytext", false, "Hack for remove counter from title")
+	flag.BoolVar(&cfg.IsJSON, "json", false, "return response with json format")
 	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.AppID, "appid", "", "AppId")
@@ -132,7 +171,7 @@ func runDaemonMode() error {
 func runReportMode(
 	fromStr string,
 	toStr string,
-	limit int,
+	responseManager reportmanager.ResponseManagerInterface,
 ) error {
 	fn := "runReportMode"
 	// Создаем подключение к БД
@@ -153,23 +192,23 @@ func runReportMode(
 
 	screenTimeDB := db.NewScreenTimeDB(conn)
 
+	// TODO: move to parsing flags
 	from, to, err := parseDates(fromStr, toStr)
 	if err != nil {
 		return fmt.Errorf("failed to parse dates: %w", err)
 	}
 
-	fmt.Printf("\nReport period: %s to %s\n",
-		from.Format("2006-01-02 15:04:05"),
-		to.Format("2006-01-02 15:04:05"))
-
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
+
+	report := reportmanager.NewResponseManager(
+		responseManager,
+	)
 
 	return report.GetReport(
 		screenTimeDB,
 		aggregateDB,
 		from,
 		to,
-		limit,
 	)
 }
 
@@ -178,8 +217,8 @@ func runDetailsMode(
 	toStr string,
 	appID string,
 	title string,
-	limit int,
 	isOnlyText bool,
+	responseManager detailsmanager.ResponseManagerInterface,
 ) error {
 	fn := "runDetailsMode"
 	// Создаем подключение к БД
@@ -200,16 +239,17 @@ func runDetailsMode(
 
 	screenTimeDB := db.NewScreenTimeDB(conn)
 
+	// TODO: move to parsing flags
 	from, to, err := parseDates(fromStr, toStr)
 	if err != nil {
 		return fmt.Errorf("failed to parse dates: %w", err)
 	}
 
-	fmt.Printf("\nReport period: %s to %s\n",
-		from.Format("2006-01-02 15:04:05"),
-		to.Format("2006-01-02 15:04:05"))
-
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
+
+	details := detailsmanager.NewDealsManager(
+		responseManager,
+	)
 
 	return details.GetDetails(
 		screenTimeDB,
@@ -218,7 +258,6 @@ func runDetailsMode(
 		to,
 		appID,
 		title,
-		limit,
 		isOnlyText,
 	)
 }
