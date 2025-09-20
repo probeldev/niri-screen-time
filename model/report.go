@@ -2,6 +2,6 @@
 package model
 
 type Report struct {
-	Name   string
-	TimeMs int
+	Name   string `json:"name"`
+	TimeMs int    `json:"time_ms"`
 }

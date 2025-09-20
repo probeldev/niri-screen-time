@@ -1,5 +1,5 @@
-// Package response need for formatting response for cli
-package response
+// Package responsemanager need for formatting response
+package responsemanager
 
 import (
 	"fmt"
@@ -8,17 +8,39 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"time"
 	"unicode/utf8"
 
 	"github.com/probeldev/niri-screen-time/model"
 )
 
-func Write(
-	report []model.Report,
-	limit int,
-) {
-	fn := "report:write"
+type responseManagerCli struct {
+	from  time.Time
+	to    time.Time
+	limit int
+}
 
+func NewResponseManagerCli(
+	from time.Time,
+	to time.Time,
+	limit int,
+) *responseManagerCli {
+	r := responseManagerCli{}
+	r.from = from
+	r.to = to
+	r.limit = limit
+
+	return &r
+}
+
+func (r *responseManagerCli) Write(
+	report []model.Report,
+) {
+	fn := "ResponseCli:write"
+
+	fmt.Printf("\nReport period: %s to %s\n",
+		r.from.Format("2006-01-02 15:04:05"),
+		r.to.Format("2006-01-02 15:04:05"))
 	sort.Slice(report, func(i, j int) bool {
 		return report[i].TimeMs > report[j].TimeMs
 	})
@@ -34,15 +56,15 @@ func Write(
 	summary := 0
 
 	var err error
-	for i, r := range report {
-		if limit != 0 && i == limit {
+	for i, rep := range report {
+		if r.limit != 0 && i == r.limit {
 			break
 		}
 
-		summary += r.TimeMs
-		dur := formatDuration(r.TimeMs)
+		summary += rep.TimeMs
+		dur := r.formatDuration(rep.TimeMs)
 
-		name := truncateString(r.Name)
+		name := r.truncateString(rep.Name)
 		_, err = fmt.Fprintf(w, "%s\t %s\n", name, dur)
 		if err != nil {
 			log.Println(fn, err)
@@ -54,7 +76,7 @@ func Write(
 		log.Println(fn, err)
 	}
 
-	dur := formatDuration(summary)
+	dur := r.formatDuration(summary)
 	_, err = fmt.Fprintf(w, "%s\t %s\n", "Summary screen time:", dur)
 	if err != nil {
 		log.Println(fn, err)
@@ -62,7 +84,7 @@ func Write(
 	fmt.Println("")
 }
 
-func formatDuration(ms int) string {
+func (r *responseManagerCli) formatDuration(ms int) string {
 	if ms < 0 {
 		return "0ms"
 	}
@@ -96,7 +118,7 @@ func formatDuration(ms int) string {
 	return strings.Join(parts, " ")
 }
 
-func truncateString(s string) string {
+func (r *responseManagerCli) truncateString(s string) string {
 	maxLength := 80
 	// Если строка короче или равна максимальной длине, возвращаем как есть
 	if utf8.RuneCountInString(s) <= maxLength {
