@@ -65,5 +65,5 @@ func GetMacOsActiveWindowManager() (
 	ActiveWindowManagerInterface,
 	error,
 ) {
-	return macos.NewHyprlandActiveWindow(), nil
+	return macos.NewMacOsActiveWindow(), nil
 }
