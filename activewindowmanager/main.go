@@ -2,10 +2,14 @@ package activewindowmanager
 
 import (
 	"errors"
-	"github.com/probeldev/niri-screen-time/activewindowmanager/hyprland"
-	"github.com/probeldev/niri-screen-time/activewindowmanager/niri"
+	"fmt"
 	"os"
+	"runtime"
 	"strings"
+
+	"github.com/probeldev/niri-screen-time/activewindowmanager/hyprland"
+	"github.com/probeldev/niri-screen-time/activewindowmanager/macos"
+	"github.com/probeldev/niri-screen-time/activewindowmanager/niri"
 )
 
 type ActiveWindowManagerInterface interface {
@@ -20,6 +24,23 @@ const (
 )
 
 func GetActiveWindowManager() (
+	ActiveWindowManagerInterface,
+	error,
+) {
+	currentOs := runtime.GOOS
+	fmt.Printf("Операционная система: %s\n", currentOs)
+
+	switch currentOs {
+	case "darwin":
+		return GetMacOsActiveWindowManager()
+	case "linux":
+		return GetLinuxActiveWindowManager()
+	}
+
+	return nil, errors.New("OS is not support")
+}
+
+func GetLinuxActiveWindowManager() (
 	ActiveWindowManagerInterface,
 	error,
 ) {
@@ -38,4 +59,11 @@ func GetActiveWindowManager() (
 	}
 
 	return nil, errors.New("compositor is not supported")
+}
+
+func GetMacOsActiveWindowManager() (
+	ActiveWindowManagerInterface,
+	error,
+) {
+	return macos.NewHyprlandActiveWindow(), nil
 }
