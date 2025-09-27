@@ -2,7 +2,6 @@ package activewindowmanager
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -28,7 +27,6 @@ func GetActiveWindowManager() (
 	error,
 ) {
 	currentOs := runtime.GOOS
-	fmt.Printf("Операционная система: %s\n", currentOs)
 
 	switch currentOs {
 	case "darwin":
