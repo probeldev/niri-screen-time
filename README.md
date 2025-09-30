@@ -44,6 +44,12 @@ Start the daemon:
 niri-screen-time -daemon 
 ```
 
+Add to startup for MacOs
+
+```bash
+niri-screen-time -autostart enable
+```
+
 ### Report 
 
 (without key)
