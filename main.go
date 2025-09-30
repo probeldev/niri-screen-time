@@ -7,7 +7,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/probeldev/niri-screen-time/activewindowmanager/macos"
 	"github.com/probeldev/niri-screen-time/aggregatemanager"
+	"github.com/probeldev/niri-screen-time/autostartmanager"
 	"github.com/probeldev/niri-screen-time/cache"
 	"github.com/probeldev/niri-screen-time/daemon"
 	"github.com/probeldev/niri-screen-time/db"
@@ -18,15 +20,16 @@ import (
 )
 
 type Config struct {
-	IsDaemon   bool
-	IsDetails  bool
-	From       string
-	To         string
-	AppID      string
-	Title      string
-	Limit      int
-	IsOnlyText bool
-	IsJSON     bool
+	IsDaemon       bool
+	IsDetails      bool
+	From           string
+	To             string
+	AppID          string
+	Title          string
+	Limit          int
+	IsOnlyText     bool
+	IsJSON         bool
+	IsMacOsStartup bool
 }
 
 func main() {
@@ -75,6 +78,10 @@ func run() error {
 		return runDaemonMode()
 	}
 
+	if cfg.IsMacOsStartup {
+		return manageAutoStart(cfg)
+	}
+
 	responseManager := GetResponseManager(cfg)
 
 	if cfg.IsDetails {
@@ -103,6 +110,7 @@ func parseFlags() *Config {
 	flag.BoolVar(&cfg.IsDetails, "details", false, "View details")
 	flag.BoolVar(&cfg.IsOnlyText, "onlytext", false, "Hack for remove counter from title")
 	flag.BoolVar(&cfg.IsJSON, "json", false, "return response with json format")
+	flag.BoolVar(&cfg.IsMacOsStartup, "autostart", false, "manage macos autostart (enable/disable/status)")
 	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.AppID, "appid", "", "AppId")
@@ -164,6 +172,84 @@ func runDaemonMode() error {
 	log.Println("Starting daemon...")
 
 	daemon.Run(screenTimeCache)
+
+	return nil
+}
+
+func addToStartupMacOs() error {
+	fmt.Println("🚀 Настройка автозапуска для macOS...")
+
+	// Создаем менеджер автозапуска
+	manager, err := autostartmanager.NewAutoStartManagerForNiri()
+	if err != nil {
+		return fmt.Errorf("ошибка создания менеджера автозапуска: %v", err)
+	}
+
+	// Проверяем и настраиваем права
+	windowTracker := macos.NewMacOsActiveWindow()
+	if err := windowTracker.EnsurePermissions(); err != nil {
+		fmt.Printf("⚠️  Предупреждение: %v\n", err)
+		fmt.Println("📋 Для полной функциональности потребуются права доступа")
+	}
+
+	// Настраиваем права для launchd
+	if err := manager.CheckAndFixPermissions(); err != nil {
+		fmt.Printf("⚠️  Предупреждение: %v\n", err)
+	}
+
+	// Включаем автозапуск
+	if err := manager.EnableAndLoad(); err != nil {
+		return fmt.Errorf("ошибка включения автозапуска: %v", err)
+	}
+
+	// Проверяем статус
+	plistExists, isRunning := manager.Status()
+	fmt.Printf("\n📊 Статус автозапуска:\n")
+	fmt.Printf("   Plist файл: %s\n", manager.GetPlistPath())
+	fmt.Printf("   Plist существует: %t\n", plistExists)
+	fmt.Printf("   Служба запущена: %t\n", isRunning)
+
+	if isRunning {
+		fmt.Println("\n✅ niri-screen-time успешно добавлен в автозапуск и запущен!")
+	} else {
+		fmt.Println("\n⚠️  Автозапуск настроен, но служба не запущена")
+		fmt.Println("   Приложение запустится при следующей перезагрузке")
+	}
+
+	fmt.Println("\n💡 Для отключения автозапуска используйте: niri-screen-time autostart disable")
+
+	return nil
+}
+
+func manageAutoStart(cfg *Config) error {
+	if len(os.Args) < 3 {
+		fmt.Println("Использование:")
+		fmt.Println("  niri-screen-time -autostart enable   - добавить в автозапуск")
+		fmt.Println("  niri-screen-time -autostart disable  - удалить из автозапуска")
+		fmt.Println("  niri-screen-time -autostart status   - проверить статус")
+		return nil
+	}
+
+	manager, err := autostartmanager.NewAutoStartManagerForNiri()
+	if err != nil {
+		return err
+	}
+
+	switch os.Args[2] {
+	case "enable":
+		return addToStartupMacOs()
+	case "disable":
+		return manager.Disable()
+	case "status":
+		plistExists, isRunning := manager.Status()
+		fmt.Printf("Plist существует: %t\n", plistExists)
+		fmt.Printf("Служба запущена: %t\n", isRunning)
+		if plistExists {
+			fmt.Printf("Plist путь: %s\n", manager.GetPlistPath())
+		}
+	default:
+		return fmt.Errorf("неизвестная команда: %s", os.Args[2])
+	}
 
 	return nil
 }
