@@ -75,7 +75,6 @@ func (am *aggregateManager) aggregateWorker() {
 		screenTimeForDelete = []model.ScreenTime{st}
 	}
 
-	log.Println("finished")
 }
 
 func (*aggregateManager) needAggregate(
