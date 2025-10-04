@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/probeldev/niri-screen-time/model"
+	"gopkg.in/yaml.v3"
 )
 
 type SubProgramManager struct {
-	programs   []model.SubProgram
-	configPath string
+	programs  []model.SubProgram
+	configDir string
 }
 
 func NewSubProgramManager() (*SubProgramManager, error) {
@@ -21,10 +23,10 @@ func NewSubProgramManager() (*SubProgramManager, error) {
 		return nil, err
 	}
 
-	configPath := filepath.Join(homeDir, ".config", "niri-screen-time", "subprograms.json")
+	configDir := filepath.Join(homeDir, ".config", "niri-screen-time")
 
 	spm := &SubProgramManager{
-		configPath: configPath,
+		configDir: configDir,
 	}
 
 	if err := spm.loadPrograms(); err != nil {
@@ -35,16 +37,30 @@ func NewSubProgramManager() (*SubProgramManager, error) {
 }
 
 func (spm *SubProgramManager) loadPrograms() error {
-	file, err := os.ReadFile(spm.configPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
+	// Try YAML files first, then fall back to JSON
+	yamlExtensions := []string{".yaml", ".yml", ".json"}
 
-	if err := json.Unmarshal(file, &spm.programs); err != nil {
-		return err
+	for _, ext := range yamlExtensions {
+		configFile := filepath.Join(spm.configDir, "subprograms"+ext)
+		file, err := os.ReadFile(configFile)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
+
+		if ext == ".json" {
+			if err := json.Unmarshal(file, &spm.programs); err != nil {
+				return err
+			}
+		} else {
+			if err := yaml.Unmarshal(file, &spm.programs); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 
 	return nil
@@ -52,10 +68,8 @@ func (spm *SubProgramManager) loadPrograms() error {
 
 func (spm *SubProgramManager) IsSetProgram(st model.ScreenTime) bool {
 	for _, p := range spm.programs {
-		for _, id := range p.AppIDs {
-			if id == st.AppID {
-				return true
-			}
+		if slices.Contains(p.AppIDs, st.AppID) {
+			return true
 		}
 	}
 	return false
