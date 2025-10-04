@@ -89,7 +89,7 @@ To track specific websites or console commands within applications, use the conf
     ],
     "title": [
         "partial_window_title1",
-        "partial_window_title2",
+        "partial_window_title2"
     ],
     "alias": "display_name"
   }
