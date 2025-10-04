@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/probeldev/niri-screen-time/model"
@@ -62,16 +63,13 @@ func (spm *SubProgramManager) loadPrograms() error {
 		return nil
 	}
 
-	// No configuration files found, return nil (not an error)
 	return nil
 }
 
 func (spm *SubProgramManager) IsSetProgram(st model.ScreenTime) bool {
 	for _, p := range spm.programs {
-		for _, id := range p.AppIDs {
-			if id == st.AppID {
-				return true
-			}
+		if slices.Contains(p.AppIDs, st.AppID) {
+			return true
 		}
 	}
 	return false
