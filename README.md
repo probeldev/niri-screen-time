@@ -76,31 +76,55 @@ niri-screen-time -from=2023-10-01 -to=2023-10-31
 
 To track specific websites or console commands within applications, use the configuration file:
 
-**Location:**  
-`~/.config/niri-screen-time/subprograms.json`
+**Supported formats:** YAML (.yaml, .yml) or JSON (.json)
+**Location:**
+`~/.config/niri-screen-time/subprograms.{yaml,yml,json}`
+*Priority order: .yaml → .yml → .json*
 
 ##### Configuration Format
+**YAML:**
+```yaml
+- app_ids:
+    - application_identi1
+    - application_identi2
+  title_list:
+    - partial_window_title1
+    - partial_window_title2
+  alias: display_name
+```
+
+**JSON:**
 ```json
 [
   {
-    "app_id": [
+    "app_ids": [
         "application_identi1",
         "application_identi2"
     ],
-    "title": [
+    "title_list": [
         "partial_window_title1",
         "partial_window_title2",
     ],
     "alias": "display_name"
   }
 ]
-
 ```
 
 ##### Configuration Examples
 
 For terminal commands:
 
+**YAML:**
+```yaml
+- app_ids:
+    - com.mitchellh.ghostty
+  title_list:
+    - "NeoVim: ~/script/"
+    - "NeoVim: ~/.config"
+  alias: "NeoVim: edit configs"
+```
+
+**JSON:**
 ```json
 {
     "app_ids": [
@@ -116,6 +140,17 @@ For terminal commands:
 
 For websites in browser:
 
+**YAML:**
+```yaml
+- app_ids:
+    - zen
+    - app.zen_browser.zen
+  title_list:
+    - Monkeytype
+  alias: Monkeytype
+```
+
+**JSON:**
 ```json
 {
     "app_ids": [
@@ -130,6 +165,16 @@ For websites in browser:
 ```
 
 Just alias:
+
+**YAML:**
+```yaml
+- app_ids:
+    - org.gnome.Nautilus
+  title_list: []
+  alias: Nautilus
+```
+
+**JSON:**
 ```json
 {
     "app_ids": [
