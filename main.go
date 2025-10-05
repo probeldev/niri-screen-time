@@ -333,7 +333,7 @@ func runDetailsMode(
 
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
-	details := detailsmanager.NewDealsManager(
+	details := detailsmanager.NewDetailsManager(
 		responseManager,
 	)
 

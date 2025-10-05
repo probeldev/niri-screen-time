@@ -14,20 +14,20 @@ type ResponseManagerInterface interface {
 	Write([]model.Report)
 }
 
-type dealsManager struct {
+type detailsManager struct {
 	responseManager ResponseManagerInterface
 }
 
-func NewDealsManager(
+func NewDetailsManager(
 	responseManager ResponseManagerInterface,
-) *dealsManager {
-	d := dealsManager{}
+) *detailsManager {
+	d := detailsManager{}
 	d.responseManager = responseManager
 
 	return &d
 }
 
-func (d *dealsManager) GetDetails(
+func (d *detailsManager) GetDetails(
 	dbScreenTime *db.ScreenTimeDB,
 	dbAggregate *db.AggregatedScreenTimeDB,
 	from time.Time,
@@ -97,7 +97,7 @@ func (d *dealsManager) GetDetails(
 	return nil
 }
 
-func (d *dealsManager) onlyText(s string) string {
+func (d *detailsManager) onlyText(s string) string {
 	for i := range 10 {
 		s = strings.ReplaceAll(s, strconv.Itoa(i), "")
 	}
