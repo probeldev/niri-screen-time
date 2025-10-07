@@ -8,7 +8,7 @@ import (
 
 func RunCommand(command string) (string, error) {
 	// Создаем команду для выполнения в shell
-	cmd := exec.Command("sh", "-c", command)
+	cmd := exec.Command("zsh", "-c", command)
 
 	// Буферы для захвата stdout и stderr
 	var stdout, stderr bytes.Buffer

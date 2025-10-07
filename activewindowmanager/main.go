@@ -2,6 +2,7 @@ package activewindowmanager
 
 import (
 	"errors"
+	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -65,14 +66,18 @@ func GetMacOsActiveWindowManager() (
 	ActiveWindowManagerInterface,
 	error,
 ) {
+
 	if isSetCommand("aerospace -v") {
+		log.Println("MacOs aerospace")
 		return macosaerospace.NewMacOsAerospaceActiveWindow(), nil
 	}
+	log.Println("MacOs default")
 
 	return macos.NewMacOsActiveWindow(), nil
 }
 
 func isSetCommand(command string) bool {
 	_, err := bash.RunCommand(command)
+	log.Println(err)
 	return err == nil
 }
