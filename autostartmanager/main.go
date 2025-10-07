@@ -36,8 +36,8 @@ func NewAutoStartManager(programPath string, args []string) (*AutoStartManager, 
 	}, nil
 }
 
-// NewAutoStartManagerForNiri создает менеджер специально для niri-screen-time
-func NewAutoStartManagerForNiri() (*AutoStartManager, error) {
+// NewAutoStartManagerForMacOs создает менеджер специально для niri-screen-time
+func NewAutoStartManagerForMacOs() (*AutoStartManager, error) {
 	// Получаем полный путь к текущему исполняемому файлу
 	execPath, err := os.Executable()
 	if err != nil {

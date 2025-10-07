@@ -180,7 +180,7 @@ func addToStartupMacOs() error {
 	fmt.Println("🚀 Настройка автозапуска для macOS...")
 
 	// Создаем менеджер автозапуска
-	manager, err := autostartmanager.NewAutoStartManagerForNiri()
+	manager, err := autostartmanager.NewAutoStartManagerForMacOs()
 	if err != nil {
 		return fmt.Errorf("ошибка создания менеджера автозапуска: %v", err)
 	}
@@ -222,6 +222,9 @@ func addToStartupMacOs() error {
 }
 
 func manageAutoStart(cfg *Config) error {
+	// TODO: only darwin
+	// TODO: translate in English
+
 	if len(os.Args) < 3 {
 		fmt.Println("Использование:")
 		fmt.Println("  niri-screen-time -autostart enable   - добавить в автозапуск")
@@ -230,7 +233,7 @@ func manageAutoStart(cfg *Config) error {
 		return nil
 	}
 
-	manager, err := autostartmanager.NewAutoStartManagerForNiri()
+	manager, err := autostartmanager.NewAutoStartManagerForMacOs()
 	if err != nil {
 		return err
 	}
