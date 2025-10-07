@@ -8,6 +8,7 @@ import (
 
 	"github.com/probeldev/niri-screen-time/activewindowmanager/hyprland"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/macos"
+	macosaerospace "github.com/probeldev/niri-screen-time/activewindowmanager/macos-aerospace"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/niri"
 	"github.com/probeldev/niri-screen-time/bash"
 )
@@ -65,7 +66,7 @@ func GetMacOsActiveWindowManager() (
 	error,
 ) {
 	if isSetCommand("aerospace") {
-		return macos.NewMacOsActiveWindow(), nil
+		return macosaerospace.NewMacOsAerospaceActiveWindow(), nil
 	}
 
 	return macos.NewMacOsActiveWindow(), nil
