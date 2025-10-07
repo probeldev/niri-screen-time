@@ -9,7 +9,7 @@ import (
 
 type macosAeropaceActiveWindow struct{}
 
-func NewHyprlandActiveWindow() *macosAeropaceActiveWindow {
+func NewMacOsAerospaceActiveWindow() *macosAeropaceActiveWindow {
 	return &macosAeropaceActiveWindow{}
 }
 
