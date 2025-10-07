@@ -4,6 +4,8 @@ A utility that tracks how much time was spent on applications by their class and
 ![Report Example](https://github.com/probeldev/niri-screen-time/blob/main/screenshots/report.png?raw=true)
 ## Supported OS
 ### MacOs
+- AeroSpace
+- Default windows manager
 ### Linux
 Supported Wayland Compositors:
 - Niri
