@@ -1,28 +1,39 @@
+// Package bash provides utilities for executing shell commands.
 package bash
 
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 )
 
-func RunCommand(command string) (string, error) {
-	// Создаем команду для выполнения в shell
-	cmd := exec.Command("zsh", "-c", command)
+func GetDefaultShell() (string, error) {
+	shell := os.Getenv("SHELL")
+	if shell == "" {
+		return "", fmt.Errorf("SHELL environment variable is not set")
+	}
+	return shell, nil
+}
 
-	// Буферы для захвата stdout и stderr
+func RunCommand(command string) (string, error) {
+	// Get shell from environment variable
+	shell, err := GetDefaultShell()
+	if err != nil {
+		// In case SHELL is not set, default to zsh
+		shell = "/bin/zsh"
+	}
+
+	cmd := exec.Command(shell, "-c", command)
+
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	// Выполняем команду
-	err := cmd.Run()
-
-	// Если есть ошибка, возвращаем stderr как часть ошибки
+	err = cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("%v: %s", err, stderr.String())
 	}
 
-	// Возвращаем stdout как результат
 	return stdout.String(), nil
 }
