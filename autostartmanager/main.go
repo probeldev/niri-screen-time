@@ -16,14 +16,14 @@ type AutoStartManager struct {
 	args        []string
 }
 
-// NewAutoStartManager создает менеджер автозапуска для конкретной программы
+// NewAutoStartManager creates an autostart manager for a specific program
 func NewAutoStartManager(programPath string, args []string) (*AutoStartManager, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
 	}
 
-	// Используем имя программы для названия plist-файла
+	// Use program name for plist file name
 	appName := filepath.Base(programPath)
 	plistPath := filepath.Join(homeDir, "Library", "LaunchAgents",
 		fmt.Sprintf("com.niri.screentime.%s.plist", appName))
@@ -36,15 +36,15 @@ func NewAutoStartManager(programPath string, args []string) (*AutoStartManager, 
 	}, nil
 }
 
-// NewAutoStartManagerForMacOs создает менеджер специально для niri-screen-time
+// NewAutoStartManagerForMacOs creates a manager specifically for niri-screen-time
 func NewAutoStartManagerForMacOs() (*AutoStartManager, error) {
-	// Получаем полный путь к текущему исполняемому файлу
+	// Get full path to current executable
 	execPath, err := os.Executable()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get executable path: %v", err)
 	}
 
-	// Используем полный путь к текущему бинарнику
+	// Use full path to current binary
 	programPath := execPath
 	args := []string{"-daemon"}
 
@@ -52,11 +52,11 @@ func NewAutoStartManagerForMacOs() (*AutoStartManager, error) {
 }
 
 func (a *AutoStartManager) Enable() error {
-	// Собираем все аргументы в один массив
+	// Collect all arguments into one array
 	programArgs := []string{a.programPath}
 	programArgs = append(programArgs, a.args...)
 
-	// Формируем XML для ProgramArguments
+	// Form XML for ProgramArguments
 	argsXML := ""
 	for _, arg := range programArgs {
 		argsXML += fmt.Sprintf("        <string>%s</string>\n", arg)
@@ -96,7 +96,7 @@ func (a *AutoStartManager) Enable() error {
 		return err
 	}
 
-	fmt.Printf("✓ Автозапуск включен для %s: %s\n", a.programPath, a.plistPath)
+	fmt.Printf("✓ Autostart enabled for %s: %s\n", a.programPath, a.plistPath)
 	return nil
 }
 
@@ -104,9 +104,9 @@ func (a *AutoStartManager) Load() error {
 	cmd := fmt.Sprintf("launchctl load \"%s\"", a.plistPath)
 	_, err := bash.RunCommand(cmd)
 	if err != nil {
-		return fmt.Errorf("ошибка загрузки службы: %v", err)
+		return fmt.Errorf("service load error: %v", err)
 	}
-	fmt.Println("✓ Служба загружена, приложение запущено")
+	fmt.Println("✓ Service loaded, application started")
 	return nil
 }
 
@@ -114,9 +114,9 @@ func (a *AutoStartManager) Unload() error {
 	cmd := fmt.Sprintf("launchctl unload \"%s\"", a.plistPath)
 	_, err := bash.RunCommand(cmd)
 	if err != nil {
-		return fmt.Errorf("ошибка выгрузки службы: %v", err)
+		return fmt.Errorf("service unload error: %v", err)
 	}
-	fmt.Println("✓ Служба выгружена")
+	fmt.Println("✓ Service unloaded")
 	return nil
 }
 
@@ -128,29 +128,29 @@ func (a *AutoStartManager) EnableAndLoad() error {
 }
 
 func (a *AutoStartManager) Disable() error {
-	// Сначала выгружаем службу
+	// First unload the service
 	a.Unload()
 
-	// Затем удаляем plist-файл
+	// Then remove the plist file
 	if err := os.Remove(a.plistPath); err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("автозапуск не был настроен")
+			return fmt.Errorf("autostart was not configured")
 		}
 		return err
 	}
 
-	fmt.Println("✓ Автозапуск отключен")
+	fmt.Println("✓ Autostart disabled")
 	return nil
 }
 
 func (a *AutoStartManager) Status() (bool, bool) {
-	// Проверяем наличие plist-файла
+	// Check if plist file exists
 	plistExists := false
 	if _, err := os.Stat(a.plistPath); err == nil {
 		plistExists = true
 	}
 
-	// Проверяем, запущена ли служба
+	// Check if service is running
 	cmd := fmt.Sprintf("launchctl list | grep com.niri.screentime.%s", a.appName)
 	output, err := bash.RunCommand(cmd)
 	isRunning := err == nil && strings.Contains(output, "com.niri.screentime."+a.appName)
@@ -158,24 +158,24 @@ func (a *AutoStartManager) Status() (bool, bool) {
 	return plistExists, isRunning
 }
 
-// GetPlistPath возвращает путь к созданному plist-файлу
+// GetPlistPath returns the path to the created plist file
 func (a *AutoStartManager) GetPlistPath() string {
 	return a.plistPath
 }
 
-// CheckAndFixPermissions проверяет и исправляет права доступа
+// CheckAndFixPermissions checks and fixes access permissions
 func (a *AutoStartManager) CheckAndFixPermissions() error {
-	fmt.Println("🔧 Проверка и настройка прав доступа...")
+	fmt.Println("🔧 Checking and configuring permissions...")
 
-	// Добавляем приложение в список доступных для Accessibility
+	// Add application to Accessibility allowed list
 	script := `
 	osascript <<'EOF'
 	tell application "System Events"
-		-- Проверяем включены ли UI элементы
+		-- Check if UI elements are enabled
 		if not UI elements enabled then
-			display dialog "niri-screen-time требует разрешения Accessibility для отслеживания активных окон." & return & return & ¬
-			"Нажмите 'Open Settings' и добавьте niri-screen-time в список разрешенных приложений." ¬
-			with title "Требуются разрешения" ¬
+			display dialog "niri-screen-time requires Accessibility permissions to track active windows." & return & return & ¬
+			"Click 'Open Settings' and add niri-screen-time to the list of allowed applications." ¬
+			with title "Permissions Required" ¬
 			with icon caution ¬
 			buttons {"Open Settings", "Cancel"} ¬
 			default button 1
@@ -187,18 +187,18 @@ func (a *AutoStartManager) CheckAndFixPermissions() error {
 				end tell
 			end if
 		else
-			-- Уже есть права, пытаемся добавить наше приложение
+			-- Already have permissions, try to add our application
 			try
 				set appPath to "%s"
 				tell application "System Events"
 					tell process "System Preferences"
 						if exists then
-							-- Уже открыты настройки, ничего не делаем
+							-- Settings already open, do nothing
 						end if
 					end tell
 				end tell
 			on error
-				-- Игнорируем ошибки, главное что права есть
+				-- Ignore errors, main thing is that we have permissions
 			end try
 		end if
 	end tell
@@ -207,11 +207,11 @@ func (a *AutoStartManager) CheckAndFixPermissions() error {
 
 	_, err := bash.RunCommand(fmt.Sprintf(script, a.programPath))
 	if err != nil {
-		fmt.Printf("⚠️  Не удалось автоматически настроить права: %v\n", err)
-		fmt.Println("📋 Пожалуйста, вручную добавьте niri-screen-time в:")
+		fmt.Printf("⚠️  Failed to automatically configure permissions: %v\n", err)
+		fmt.Println("📋 Please manually add niri-screen-time to:")
 		fmt.Println("   System Settings → Privacy & Security → Accessibility")
 	} else {
-		fmt.Println("✓ Права доступа настроены")
+		fmt.Println("✓ Permissions configured")
 	}
 
 	return nil
