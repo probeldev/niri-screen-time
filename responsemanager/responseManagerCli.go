@@ -64,7 +64,8 @@ func (r *responseManagerCli) Write(
 		summary += rep.TimeMs
 		dur := r.formatDuration(rep.TimeMs)
 
-		name := r.truncateString(rep.Name)
+		name := strings.ReplaceAll(rep.Name, "\n", "")
+		name = r.truncateString(name)
 		_, err = fmt.Fprintf(w, "%s\t %s\n", name, dur)
 		if err != nil {
 			log.Println(fn, err)
