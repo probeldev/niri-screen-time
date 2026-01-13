@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/probeldev/niri-screen-time/activewindowmanager/macos"
@@ -177,52 +178,56 @@ func runDaemonMode() error {
 }
 
 func addToStartupMacOs() error {
-	fmt.Println("🚀 Настройка автозапуска для macOS...")
+	fmt.Println("🚀 Setting up autostart for macOS...")
 
-	// Создаем менеджер автозапуска
+	// Create the autostart manager
 	manager, err := autostartmanager.NewAutoStartManagerForMacOs()
 	if err != nil {
-		return fmt.Errorf("ошибка создания менеджера автозапуска: %v", err)
+		return err
 	}
 
-	// Проверяем и настраиваем права
+	// Check and request permissions
 	windowTracker := macos.NewMacOsActiveWindow()
 	if err := windowTracker.EnsurePermissions(); err != nil {
-		fmt.Printf("⚠️  Предупреждение: %v\n", err)
-		fmt.Println("📋 Для полной функциональности потребуются права доступа")
+		fmt.Printf("⚠️  Warning: %v\n", err)
+		fmt.Println("📋 Full functionality requires accessibility permissions")
 	}
 
-	// Настраиваем права для launchd
+	// Set up permissions for launchd
 	if err := manager.CheckAndFixPermissions(); err != nil {
-		fmt.Printf("⚠️  Предупреждение: %v\n", err)
+		fmt.Printf("⚠️  Warning: %v\n", err)
 	}
 
-	// Включаем автозапуск
+	// Enable autostart
 	if err := manager.EnableAndLoad(); err != nil {
-		return fmt.Errorf("ошибка включения автозапуска: %v", err)
+		return err
 	}
 
-	// Проверяем статус
+	// Check status
 	plistExists, isRunning := manager.Status()
-	fmt.Printf("\n📊 Статус автозапуска:\n")
-	fmt.Printf("   Plist файл: %s\n", manager.GetPlistPath())
-	fmt.Printf("   Plist существует: %t\n", plistExists)
-	fmt.Printf("   Служба запущена: %t\n", isRunning)
+	fmt.Printf("\n📊 Autostart status:\n")
+	fmt.Printf("   Plist file: %s\n", manager.GetPlistPath())
+	fmt.Printf("   Plist exists: %t\n", plistExists)
+	fmt.Printf("   Service is running: %t\n", isRunning)
 
 	if isRunning {
-		fmt.Println("\n✅ niri-screen-time успешно добавлен в автозапуск и запущен!")
+		fmt.Println("\n✅ niri-screen-time has been successfully added to autostart and is now running!")
 	} else {
-		fmt.Println("\n⚠️  Автозапуск настроен, но служба не запущена")
-		fmt.Println("   Приложение запустится при следующей перезагрузке")
+		fmt.Println("\n⚠️  Autostart is configured, but the service is not currently running")
+		fmt.Println("   The application will start automatically on next reboot")
 	}
 
-	fmt.Println("\n💡 Для отключения автозапуска используйте: niri-screen-time autostart disable")
+	fmt.Println("\n💡 To disable autostart, use: niri-screen-time autostart disable")
 
 	return nil
 }
 
 func manageAutoStart(cfg *Config) error {
-	// TODO: only darwin
+	currentOs := runtime.GOOS
+
+	if currentOs != "darwin" {
+		return nil
+	}
 
 	if len(os.Args) < 3 {
 		fmt.Println("Usage:")

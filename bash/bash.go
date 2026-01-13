@@ -32,7 +32,7 @@ func RunCommand(command string) (string, error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("%v: %s", err, stderr.String())
+		return "", err
 	}
 
 	return stdout.String(), nil

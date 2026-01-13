@@ -25,7 +25,7 @@ func (nw *niriActiveWindow) GetWindowsList() ([]Window, error) {
 	return windows, err
 }
 
-func (nw *niriActiveWindow) ParseWindows(output []byte) ([]Window, error) {
+func (*niriActiveWindow) ParseWindows(output []byte) ([]Window, error) {
 	var windows []Window
 	if err := json.Unmarshal(output, &windows); err != nil {
 		return nil, fmt.Errorf("error unmarshalling windows: %w", err)

@@ -89,11 +89,13 @@ func (a *AutoStartManager) Enable() error {
 </plist>`, a.appName, argsXML, a.appName, a.appName)
 
 	dir := filepath.Dir(a.plistPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	var permissionFolder os.FileMode = 0755
+	if err := os.MkdirAll(dir, permissionFolder); err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(a.plistPath, []byte(plistContent), 0644); err != nil {
+	var permissionFile os.FileMode = 0644
+	if err := os.WriteFile(a.plistPath, []byte(plistContent), permissionFile); err != nil {
 		return err
 	}
 
