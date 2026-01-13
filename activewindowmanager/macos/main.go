@@ -64,8 +64,8 @@ func (m *macosActiveWindow) CheckPermissions() error {
 func (m *macosActiveWindow) GetActiveWindow() (appID string, title string, err error) {
 	// Проверяем permissions перед выполнением
 	if !m.permissionsChecked {
-		if err := m.CheckPermissions(); err != nil {
-			return "", "", fmt.Errorf("permissions required: %v", err)
+		if errPemission := m.CheckPermissions(); errPemission != nil {
+			return "", "", fmt.Errorf("permissions required: %v", errPemission)
 		}
 	}
 

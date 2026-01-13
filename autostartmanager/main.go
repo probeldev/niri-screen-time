@@ -1,3 +1,4 @@
+// Package autostartmanager implement autostart for MacOs
 package autostartmanager
 
 import (
@@ -129,7 +130,7 @@ func (a *AutoStartManager) EnableAndLoad() error {
 
 func (a *AutoStartManager) Disable() error {
 	// First unload the service
-	a.Unload()
+	_ = a.Unload()
 
 	// Then remove the plist file
 	if err := os.Remove(a.plistPath); err != nil {

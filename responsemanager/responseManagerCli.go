@@ -85,7 +85,7 @@ func (r *responseManagerCli) Write(
 	fmt.Println("")
 }
 
-func (r *responseManagerCli) formatDuration(ms int) string {
+func (*responseManagerCli) formatDuration(ms int) string {
 	if ms < 0 {
 		return "0ms"
 	}
@@ -119,7 +119,7 @@ func (r *responseManagerCli) formatDuration(ms int) string {
 	return strings.Join(parts, " ")
 }
 
-func (r *responseManagerCli) truncateString(s string) string {
+func (*responseManagerCli) truncateString(s string) string {
 	maxLength := 80
 	// Если строка короче или равна максимальной длине, возвращаем как есть
 	if utf8.RuneCountInString(s) <= maxLength {

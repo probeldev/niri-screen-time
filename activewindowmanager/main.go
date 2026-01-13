@@ -66,7 +66,6 @@ func GetMacOsActiveWindowManager() (
 	ActiveWindowManagerInterface,
 	error,
 ) {
-
 	if isSetCommand("aerospace -v") {
 		log.Println("MacOs aerospace")
 		return macosaerospace.NewMacOsAerospaceActiveWindow(), nil

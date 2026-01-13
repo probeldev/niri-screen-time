@@ -223,13 +223,12 @@ func addToStartupMacOs() error {
 
 func manageAutoStart(cfg *Config) error {
 	// TODO: only darwin
-	// TODO: translate in English
 
 	if len(os.Args) < 3 {
-		fmt.Println("Использование:")
-		fmt.Println("  niri-screen-time -autostart enable   - добавить в автозапуск")
-		fmt.Println("  niri-screen-time -autostart disable  - удалить из автозапуска")
-		fmt.Println("  niri-screen-time -autostart status   - проверить статус")
+		fmt.Println("Usage:")
+		fmt.Println("  niri-screen-time -autostart enable   - add to autostart")
+		fmt.Println("  niri-screen-time -autostart disable  - remove from autostart")
+		fmt.Println("  niri-screen-time -autostart status   - check status")
 		return nil
 	}
 
@@ -245,13 +244,13 @@ func manageAutoStart(cfg *Config) error {
 		return manager.Disable()
 	case "status":
 		plistExists, isRunning := manager.Status()
-		fmt.Printf("Plist существует: %t\n", plistExists)
-		fmt.Printf("Служба запущена: %t\n", isRunning)
+		fmt.Printf("Plist exists: %t\n", plistExists)
+		fmt.Printf("Service is running: %t\n", isRunning)
 		if plistExists {
-			fmt.Printf("Plist путь: %s\n", manager.GetPlistPath())
+			fmt.Printf("Plist path: %s\n", manager.GetPlistPath())
 		}
 	default:
-		return fmt.Errorf("неизвестная команда: %s", os.Args[2])
+		return fmt.Errorf("unknown command: %s", os.Args[2])
 	}
 
 	return nil
