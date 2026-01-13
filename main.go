@@ -130,7 +130,7 @@ func parseFlags() *Config {
 
 func runDaemonMode() error {
 	fn := "runDaemonMode"
-	// Создаем подключение к БД
+	// Create a database connection
 	conn, err := db.NewDBConnection()
 	if err != nil {
 		log.Panic(fn, err)
@@ -267,7 +267,7 @@ func runReportMode(
 	responseManager reportmanager.ResponseManagerInterface,
 ) error {
 	fn := "runReportMode"
-	// Создаем подключение к БД
+	// Create a database connection
 	conn, err := db.NewDBConnection()
 	if err != nil {
 		log.Fatal(err)
@@ -314,7 +314,7 @@ func runDetailsMode(
 	responseManager detailsmanager.ResponseManagerInterface,
 ) error {
 	fn := "runDetailsMode"
-	// Создаем подключение к БД
+	// Create a database connection
 	conn, err := db.NewDBConnection()
 	if err != nil {
 		log.Fatal(err)
