@@ -42,7 +42,7 @@ func NewAutoStartManagerForMacOs() (*AutoStartManager, error) {
 	// Get full path to current executable
 	execPath, err := os.Executable()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get executable path: %v", err)
+		return nil, fmt.Errorf("failed to get executable path: %w", err)
 	}
 
 	// Use full path to current binary
@@ -107,7 +107,7 @@ func (a *AutoStartManager) Load() error {
 	cmd := fmt.Sprintf("launchctl load %q", a.plistPath)
 	_, err := bash.RunCommand(cmd)
 	if err != nil {
-		return fmt.Errorf("service load error: %v", err)
+		return fmt.Errorf("service load error: %w", err)
 	}
 	fmt.Println("✓ Service loaded, application started")
 	return nil
@@ -117,7 +117,7 @@ func (a *AutoStartManager) Unload() error {
 	cmd := fmt.Sprintf("launchctl unload %q", a.plistPath)
 	_, err := bash.RunCommand(cmd)
 	if err != nil {
-		return fmt.Errorf("service unload error: %v", err)
+		return fmt.Errorf("service unload error: %w", err)
 	}
 	fmt.Println("✓ Service unloaded")
 	return nil
