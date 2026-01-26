@@ -50,7 +50,7 @@ func (m *macosActiveWindow) CheckPermissions() error {
 
 	output, err := bash.RunCommand(script)
 	if err != nil {
-		return fmt.Errorf("failed to check permissions: %v", err)
+		return fmt.Errorf("failed to check permissions: %w", err)
 	}
 
 	if strings.TrimSpace(output) == "false" {
@@ -65,7 +65,7 @@ func (m *macosActiveWindow) GetActiveWindow() (appID string, title string, err e
 	// Проверяем permissions перед выполнением
 	if !m.permissionsChecked {
 		if errPemission := m.CheckPermissions(); errPemission != nil {
-			return "", "", fmt.Errorf("permissions required: %v", errPemission)
+			return "", "", fmt.Errorf("permissions required: %w", errPemission)
 		}
 	}
 
@@ -91,7 +91,7 @@ func (m *macosActiveWindow) GetActiveWindow() (appID string, title string, err e
 		EOF
 	`)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to get active window: %v", err)
+		return "", "", fmt.Errorf("failed to get active window: %w", err)
 	}
 
 	// Обрабатываем ошибки из AppleScript

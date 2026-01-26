@@ -47,7 +47,6 @@ type ResponseManagerInterface interface {
 func GetResponseManager(
 	cfg *Config,
 ) ResponseManagerInterface {
-
 	fn := "GetResponseManager"
 
 	if cfg.IsJSON {

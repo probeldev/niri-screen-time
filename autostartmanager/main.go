@@ -104,7 +104,7 @@ func (a *AutoStartManager) Enable() error {
 }
 
 func (a *AutoStartManager) Load() error {
-	cmd := fmt.Sprintf("launchctl load \"%s\"", a.plistPath)
+	cmd := fmt.Sprintf("launchctl load %q", a.plistPath)
 	_, err := bash.RunCommand(cmd)
 	if err != nil {
 		return fmt.Errorf("service load error: %v", err)
@@ -114,7 +114,7 @@ func (a *AutoStartManager) Load() error {
 }
 
 func (a *AutoStartManager) Unload() error {
-	cmd := fmt.Sprintf("launchctl unload \"%s\"", a.plistPath)
+	cmd := fmt.Sprintf("launchctl unload %q", a.plistPath)
 	_, err := bash.RunCommand(cmd)
 	if err != nil {
 		return fmt.Errorf("service unload error: %v", err)

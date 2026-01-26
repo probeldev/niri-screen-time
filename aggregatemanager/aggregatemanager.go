@@ -9,17 +9,17 @@ import (
 )
 
 type aggregateManager struct {
-	screenTimeDb db.ScreenTimeDB
-	aggregateDb  db.AggregatedScreenTimeDB
+	screenTimeDB db.ScreenTimeDB
+	aggregateDB  db.AggregatedScreenTimeDB
 }
 
 func NewAggragetManager(
-	screenTimeDb db.ScreenTimeDB,
-	aggregateDb db.AggregatedScreenTimeDB,
+	screenTimeDB db.ScreenTimeDB,
+	aggregateDB db.AggregatedScreenTimeDB,
 ) *aggregateManager {
 	am := &aggregateManager{}
-	am.screenTimeDb = screenTimeDb
-	am.aggregateDb = aggregateDb
+	am.screenTimeDB = screenTimeDB
+	am.aggregateDB = aggregateDB
 
 	return am
 }
@@ -33,7 +33,7 @@ func (am *aggregateManager) Aggregate() {
 
 func (am *aggregateManager) aggregateWorker() {
 	fn := "aggregateManager:aggregateWorker"
-	screenTimes, err := am.screenTimeDb.GetAll()
+	screenTimes, err := am.screenTimeDB.GetAll()
 
 	if err != nil {
 		log.Println(fn, err)
@@ -57,14 +57,14 @@ func (am *aggregateManager) aggregateWorker() {
 			continue
 		}
 
-		err := am.aggregateDb.Insert(aggregate)
+		err := am.aggregateDB.Insert(aggregate)
 		if err != nil {
 			log.Println(fn, err)
 			return
 		}
 
 		for _, std := range screenTimeForDelete {
-			err := am.screenTimeDb.DeleteByID(std)
+			err := am.screenTimeDB.DeleteByID(std)
 			if err != nil {
 				log.Println(fn, err)
 				return
@@ -74,7 +74,6 @@ func (am *aggregateManager) aggregateWorker() {
 		aggregate = model.NewAggregatedScreenTimeFromScreenTime(st)
 		screenTimeForDelete = []model.ScreenTime{st}
 	}
-
 }
 
 func (*aggregateManager) needAggregate(
