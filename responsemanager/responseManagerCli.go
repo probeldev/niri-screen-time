@@ -15,14 +15,14 @@ import (
 )
 
 type responseManagerCli struct {
-	from  time.Time
-	to    time.Time
+	from  *time.Time
+	to    *time.Time
 	limit int
 }
 
 func NewResponseManagerCli(
-	from time.Time,
-	to time.Time,
+	from *time.Time,
+	to *time.Time,
 	limit int,
 ) *responseManagerCli {
 	r := responseManagerCli{}

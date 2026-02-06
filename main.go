@@ -23,8 +23,8 @@ import (
 type Config struct {
 	IsDaemon       bool
 	IsDetails      bool
-	From           string
-	To             string
+	From           *time.Time
+	To             *time.Time
 	AppID          string
 	Title          string
 	Limit          int
@@ -47,8 +47,6 @@ type ResponseManagerInterface interface {
 func GetResponseManager(
 	cfg *Config,
 ) ResponseManagerInterface {
-	fn := "GetResponseManager"
-
 	if cfg.IsJSON {
 		responseManager := responsemanager.NewResponseManagerJSON(
 			cfg.Limit,
@@ -56,16 +54,9 @@ func GetResponseManager(
 		return responseManager
 	}
 
-	// TODO: move to parsing flags
-	from, to, err := parseDates(cfg.From, cfg.To)
-	if err != nil {
-		log.Println(fn, err)
-		os.Exit(0)
-	}
-
 	responseManager := responsemanager.NewResponseManagerCli(
-		from,
-		to,
+		cfg.From,
+		cfg.To,
 		cfg.Limit,
 	)
 	return responseManager
@@ -86,38 +77,46 @@ func run() error {
 
 	if cfg.IsDetails {
 		return runDetailsMode(
-			cfg.From,
-			cfg.To,
-			cfg.AppID,
-			cfg.Title,
-			cfg.IsOnlyText,
+			cfg,
 			responseManager,
 		)
 	}
 	return runReportMode(
-		cfg.From,
-		cfg.To,
+		cfg,
 		responseManager,
 	)
 }
 
 func parseFlags() *Config {
+	fn := "parseFlags"
 	cfg := &Config{}
 
 	showVersion := false
+
+	var fromStr string
+	var toStr string
 
 	flag.BoolVar(&cfg.IsDaemon, "daemon", false, "Run daemon")
 	flag.BoolVar(&cfg.IsDetails, "details", false, "View details")
 	flag.BoolVar(&cfg.IsOnlyText, "onlytext", false, "Hack for remove counter from title")
 	flag.BoolVar(&cfg.IsJSON, "json", false, "return response with json format")
 	flag.BoolVar(&cfg.IsMacOsStartup, "autostart", false, "manage macos autostart (enable/disable/status)")
-	flag.StringVar(&cfg.From, "from", "", "Start date (format: 2006-01-02), defaults to today")
-	flag.StringVar(&cfg.To, "to", "", "End date (format: 2006-01-02), defaults to today")
+	flag.StringVar(&fromStr, "from", "", "Start date (format: 2006-01-02), defaults to today")
+	flag.StringVar(&toStr, "to", "", "End date (format: 2006-01-02), defaults to today")
 	flag.StringVar(&cfg.AppID, "appid", "", "AppId")
 	flag.StringVar(&cfg.Title, "title", "", "Substring to match in titles")
 	flag.IntVar(&cfg.Limit, "limit", 0, "Limit of response line, defaults to unlimited")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.Parse()
+
+	from, to, err := parseDates(fromStr, toStr)
+	if err != nil {
+		log.Println(fn, err)
+		os.Exit(0)
+	}
+
+	cfg.From = &from
+	cfg.To = &to
 
 	if showVersion {
 		fmt.Println(version)
@@ -261,8 +260,7 @@ func manageAutoStart(cfg *Config) error {
 }
 
 func runReportMode(
-	fromStr string,
-	toStr string,
+	cfg *Config,
 	responseManager reportmanager.ResponseManagerInterface,
 ) error {
 	fn := "runReportMode"
@@ -284,12 +282,6 @@ func runReportMode(
 
 	screenTimeDB := db.NewScreenTimeDB(conn)
 
-	// TODO: move to parsing flags
-	from, to, err := parseDates(fromStr, toStr)
-	if err != nil {
-		return fmt.Errorf("failed to parse dates: %w", err)
-	}
-
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
 	report := reportmanager.NewResponseManager(
@@ -299,17 +291,13 @@ func runReportMode(
 	return report.GetReport(
 		screenTimeDB,
 		aggregateDB,
-		from,
-		to,
+		cfg.From,
+		cfg.To,
 	)
 }
 
 func runDetailsMode(
-	fromStr string,
-	toStr string,
-	appID string,
-	title string,
-	isOnlyText bool,
+	cfg *Config,
 	responseManager detailsmanager.ResponseManagerInterface,
 ) error {
 	fn := "runDetailsMode"
@@ -331,12 +319,6 @@ func runDetailsMode(
 
 	screenTimeDB := db.NewScreenTimeDB(conn)
 
-	// TODO: move to parsing flags
-	from, to, err := parseDates(fromStr, toStr)
-	if err != nil {
-		return fmt.Errorf("failed to parse dates: %w", err)
-	}
-
 	aggregateDB := db.NewAggregatedScreenTimeDB(conn)
 
 	details := detailsmanager.NewDetailsManager(
@@ -346,11 +328,11 @@ func runDetailsMode(
 	return details.GetDetails(
 		screenTimeDB,
 		aggregateDB,
-		from,
-		to,
-		appID,
-		title,
-		isOnlyText,
+		cfg.From,
+		cfg.To,
+		cfg.AppID,
+		cfg.Title,
+		cfg.IsOnlyText,
 	)
 }
 

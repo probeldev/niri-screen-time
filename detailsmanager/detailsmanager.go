@@ -30,8 +30,8 @@ func NewDetailsManager(
 func (d *detailsManager) GetDetails(
 	dbScreenTime *db.ScreenTimeDB,
 	dbAggregate *db.AggregatedScreenTimeDB,
-	from time.Time,
-	to time.Time,
+	from *time.Time,
+	to *time.Time,
 	appID string,
 	title string,
 	isOnlyText bool,

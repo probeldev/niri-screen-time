@@ -58,7 +58,13 @@ func (stdb *ScreenTimeDB) BulkInsert(records []model.ScreenTime) error {
 	return tx.Commit()
 }
 
-func (stdb *ScreenTimeDB) GetByDateRange(from, to time.Time) ([]model.ScreenTime, error) {
+func (stdb *ScreenTimeDB) GetByDateRange(
+	from,
+	to *time.Time,
+) (
+	[]model.ScreenTime,
+	error,
+) {
 	fn := "ScreenTimeDB:GetByDateRange"
 	rows, err := stdb.conn.db.Query(
 		"SELECT date, app_id, title, sleep FROM screen_time WHERE date BETWEEN ? AND ? ORDER BY date",

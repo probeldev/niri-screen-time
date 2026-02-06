@@ -60,7 +60,7 @@ func (astdb *AggregatedScreenTimeDB) BulkInsert(records []model.AggregatedScreen
 
 func (astdb *AggregatedScreenTimeDB) GetByDateRange(
 	from,
-	to time.Time,
+	to *time.Time,
 ) (
 	[]model.AggregatedScreenTime,
 	error,

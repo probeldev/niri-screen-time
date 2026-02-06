@@ -29,8 +29,8 @@ func NewResponseManager(
 func (r *reportManager) GetReport(
 	dbScreenTime *db.ScreenTimeDB,
 	dbAggregate *db.AggregatedScreenTimeDB,
-	from time.Time,
-	to time.Time,
+	from *time.Time,
+	to *time.Time,
 ) error {
 	resp := map[string]model.Report{}
 
