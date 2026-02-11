@@ -58,9 +58,9 @@ func (a *AutoStartManager) Enable() error {
 	programArgs = append(programArgs, a.args...)
 
 	// Form XML for ProgramArguments
-	argsXML := ""
+	var argsXML strings.Builder
 	for _, arg := range programArgs {
-		argsXML += fmt.Sprintf("        <string>%s</string>\n", arg)
+		argsXML.WriteString(fmt.Sprintf("        <string>%s</string>\n", arg))
 	}
 
 	plistContent := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
@@ -86,7 +86,7 @@ func (a *AutoStartManager) Enable() error {
         <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
     </dict>
 </dict>
-</plist>`, a.appName, argsXML, a.appName, a.appName)
+</plist>`, a.appName, argsXML.String(), a.appName, a.appName)
 
 	dir := filepath.Dir(a.plistPath)
 	var permissionFolder os.FileMode = 0755
