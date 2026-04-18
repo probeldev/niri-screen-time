@@ -24,7 +24,6 @@ func NewSubProgramManager() (*SubProgramManager, error) {
 	}
 
 	configDir := filepath.Join(homeDir, ".config", "niri-screen-time")
-
 	spm := &SubProgramManager{
 		configDir: configDir,
 	}

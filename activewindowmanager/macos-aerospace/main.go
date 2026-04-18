@@ -2,7 +2,8 @@
 package macosaerospace
 
 import (
-	"strings"
+	"encoding/json"
+	"log"
 
 	"github.com/probeldev/niri-screen-time/bash"
 )
@@ -18,18 +19,25 @@ func (macosAeropaceActiveWindow) GetActiveWindow() (
 	title string,
 	err error,
 ) {
-	output, err := bash.RunCommand("aerospace list-windows --focused")
+	output, err := bash.RunCommand("aerospace list-windows --focused --json")
 	if err != nil {
 		return appID, title, err
 	}
 
-	if strings.Contains(output, "No window is focused") {
+	windows := []Window{}
+
+	err = json.Unmarshal([]byte(output), &windows)
+	if err != nil {
+		return appID, title, err
+	}
+	if len(windows) == 0 {
 		return "", "", nil
 	}
 
-	lines := strings.Split(output, "|")
-	appID = strings.Trim(lines[1], " ")
-	title = strings.Trim(lines[2], " ")
+	appID = windows[0].AppName
+	title = windows[0].WindowTitle
+
+	log.Println(appID, title)
 
 	return appID, title, nil
 }
