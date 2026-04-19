@@ -145,7 +145,6 @@ func runDaemonMode() error {
 		if err != nil {
 			log.Panic(fn, err)
 		}
-		time.Sleep(1 * time.Hour)
 	}()
 
 	if err := conn.InitTables(); err != nil {
