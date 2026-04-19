@@ -10,6 +10,8 @@ import (
 	"github.com/probeldev/niri-screen-time/model"
 )
 
+const aggregateInterval = 10 * time.Minute
+
 type aggregateManager struct {
 	screenTimeDB db.ScreenTimeDB
 	aggregateDB  db.AggregatedScreenTimeDB
@@ -29,7 +31,7 @@ func NewAggragetManager(
 func (am *aggregateManager) Aggregate() {
 	for {
 		am.aggregateWorker()
-		time.Sleep(10 * time.Minute)
+		time.Sleep(aggregateInterval)
 	}
 }
 
