@@ -59,7 +59,26 @@ func (am *aggregateManager) aggregateWorker() {
 			continue
 		}
 
-		err := am.aggregateDB.Insert(aggregate)
+		err = am.aggregateDB.Insert(aggregate)
+		if err != nil {
+			log.Println(fn, err)
+			return
+		}
+
+		for _, std := range screenTimeForDelete {
+			err = am.screenTimeDB.DeleteByID(std)
+			if err != nil {
+				log.Println(fn, err)
+				return
+			}
+		}
+
+		aggregate = model.NewAggregatedScreenTimeFromScreenTime(st)
+		screenTimeForDelete = []model.ScreenTime{st}
+	}
+
+	if len(screenTimeForDelete) > 0 {
+		err = am.aggregateDB.Insert(aggregate)
 		if err != nil {
 			log.Println(fn, err)
 			return
@@ -72,9 +91,6 @@ func (am *aggregateManager) aggregateWorker() {
 				return
 			}
 		}
-
-		aggregate = model.NewAggregatedScreenTimeFromScreenTime(st)
-		screenTimeForDelete = []model.ScreenTime{st}
 	}
 }
 
