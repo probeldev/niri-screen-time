@@ -1,3 +1,5 @@
+// Package aggregatemanager aggregates raw screen time records into
+// consolidated sessions based on application ID, window title, and time proximity.
 package aggregatemanager
 
 import (
@@ -88,7 +90,7 @@ func (*aggregateManager) needAggregate(
 		return false
 	}
 
-	if aggregate.Date.Sub(screenTime.Date) > time.Second {
+	if screenTime.Date.Sub(aggregate.Date) > time.Second {
 		return false
 	}
 
