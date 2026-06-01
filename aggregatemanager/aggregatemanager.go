@@ -1,3 +1,5 @@
+// Package aggregatemanager aggregates raw screen time records into
+// consolidated sessions based on application ID, window title, and time proximity.
 package aggregatemanager
 
 import (
@@ -7,6 +9,8 @@ import (
 	"github.com/probeldev/niri-screen-time/db"
 	"github.com/probeldev/niri-screen-time/model"
 )
+
+const aggregateInterval = 10 * time.Minute
 
 type aggregateManager struct {
 	screenTimeDB db.ScreenTimeDB
@@ -27,7 +31,7 @@ func NewAggragetManager(
 func (am *aggregateManager) Aggregate() {
 	for {
 		am.aggregateWorker()
-		time.Sleep(10 * time.Minute)
+		time.Sleep(aggregateInterval)
 	}
 }
 
@@ -57,7 +61,26 @@ func (am *aggregateManager) aggregateWorker() {
 			continue
 		}
 
-		err := am.aggregateDB.Insert(aggregate)
+		err = am.aggregateDB.Insert(aggregate)
+		if err != nil {
+			log.Println(fn, err)
+			return
+		}
+
+		for _, std := range screenTimeForDelete {
+			err = am.screenTimeDB.DeleteByID(std)
+			if err != nil {
+				log.Println(fn, err)
+				return
+			}
+		}
+
+		aggregate = model.NewAggregatedScreenTimeFromScreenTime(st)
+		screenTimeForDelete = []model.ScreenTime{st}
+	}
+
+	if len(screenTimeForDelete) > 0 {
+		err = am.aggregateDB.Insert(aggregate)
 		if err != nil {
 			log.Println(fn, err)
 			return
@@ -70,9 +93,6 @@ func (am *aggregateManager) aggregateWorker() {
 				return
 			}
 		}
-
-		aggregate = model.NewAggregatedScreenTimeFromScreenTime(st)
-		screenTimeForDelete = []model.ScreenTime{st}
 	}
 }
 
@@ -88,7 +108,7 @@ func (*aggregateManager) needAggregate(
 		return false
 	}
 
-	if aggregate.Date.Sub(screenTime.Date) > time.Second {
+	if screenTime.Date.Sub(aggregate.Date) > time.Second {
 		return false
 	}
 
