@@ -200,10 +200,14 @@ func addToStartupMacOs() error {
 		return err
 	}
 
+	// Give launchd a moment to spawn the process before checking status
+	time.Sleep(time.Second)
+
 	// Check status
 	plistExists, isRunning := manager.Status()
 	fmt.Printf("\n📊 Autostart status:\n")
 	fmt.Printf("   Plist file: %s\n", manager.GetPlistPath())
+	fmt.Printf("   Logs: %s\n", manager.GetLogDir())
 	fmt.Printf("   Plist exists: %t\n", plistExists)
 	fmt.Printf("   Service is running: %t\n", isRunning)
 
