@@ -10,6 +10,7 @@ import (
 	"github.com/probeldev/niri-screen-time/activewindowmanager/hyprland"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/macos"
 	macosaerospace "github.com/probeldev/niri-screen-time/activewindowmanager/macos-aerospace"
+	macosrift "github.com/probeldev/niri-screen-time/activewindowmanager/macos-rift"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/niri"
 	"github.com/probeldev/niri-screen-time/bash"
 )
@@ -69,6 +70,10 @@ func GetMacOsActiveWindowManager() (
 	if isSetCommand("aerospace -v") {
 		log.Println("MacOs aerospace")
 		return macosaerospace.NewMacOsAerospaceActiveWindow(), nil
+	}
+	if isSetCommand("which rift-cli") {
+		log.Println("MacOs rift")
+		return macosrift.NewMacOsRiftActiveWindow(), nil
 	}
 	log.Println("MacOs default")
 

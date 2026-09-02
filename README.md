@@ -5,6 +5,7 @@ A utility that tracks how much time was spent on applications by their class and
 ## Supported OS
 ### MacOs
 - AeroSpace
+- Rift
 - Default windows manager
 ### Linux
 Supported Wayland Compositors:
