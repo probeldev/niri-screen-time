@@ -10,6 +10,7 @@ import (
 	"github.com/probeldev/niri-screen-time/activewindowmanager/hyprland"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/macos"
 	macosaerospace "github.com/probeldev/niri-screen-time/activewindowmanager/macos-aerospace"
+	macosomniwm "github.com/probeldev/niri-screen-time/activewindowmanager/macos-omniwm"
 	macosrift "github.com/probeldev/niri-screen-time/activewindowmanager/macos-rift"
 	"github.com/probeldev/niri-screen-time/activewindowmanager/niri"
 	"github.com/probeldev/niri-screen-time/bash"
@@ -70,6 +71,12 @@ func GetMacOsActiveWindowManager() (
 	if isSetCommand("aerospace -v") {
 		log.Println("MacOs aerospace")
 		return macosaerospace.NewMacOsAerospaceActiveWindow(), nil
+	}
+	// OmniWM and Rift refuse to run side by side, so prefer the WM that is
+	// actually running right now over the one that is merely installed.
+	if isSetCommand("pgrep -x OmniWM") {
+		log.Println("MacOs OmniWM")
+		return macosomniwm.NewMacOsOmniWMActiveWindow(), nil
 	}
 	if isSetCommand("which rift-cli") {
 		log.Println("MacOs rift")
