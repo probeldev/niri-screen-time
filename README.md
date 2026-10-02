@@ -6,6 +6,7 @@ A utility that tracks how much time was spent on applications by their class and
 ### MacOs
 - AeroSpace
 - Rift
+- OmniWM (requires `general.ipcEnabled = true` in OmniWM settings)
 - Default windows manager
 ### Linux
 Supported Wayland Compositors:
